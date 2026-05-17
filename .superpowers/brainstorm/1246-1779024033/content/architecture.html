@@ -1,0 +1,60 @@
+<h2>系统架构总览</h2>
+<p class="subtitle">前后端分离 + 可扩展工具包系统</p>
+
+<div class="mockup" style="margin-bottom:20px;">
+  <div class="mockup-header">架构全景图</div>
+  <div class="mockup-body" style="padding:24px;">
+    <div style="display:flex;flex-direction:column;gap:16px;align-items:center;">
+
+      <!-- Browser -->
+      <div style="background:#dbeafe;border:2px solid #3b82f6;border-radius:12px;padding:16px 32px;text-align:center;width:80%;">
+        <div style="font-weight:700;font-size:15px;">🌐 浏览器</div>
+        <div style="font-size:13px;color:#475569;margin-top:4px;">React SPA（任何设备打开即用）</div>
+      </div>
+
+      <div style="font-size:20px;color:#94a3b8;">⬇ ⬆</div>
+
+      <!-- Server -->
+      <div style="background:#fef3c7;border:2px solid #f59e0b;border-radius:12px;padding:16px 32px;text-align:center;width:80%;">
+        <div style="font-weight:700;font-size:15px;">🖥️ Node.js 后端</div>
+        <div style="font-size:13px;color:#475569;margin-top:4px;">Express API + 工具包路由 + AI 总结服务</div>
+      </div>
+
+      <div style="display:flex;gap:20px;width:80%;">
+        <div style="flex:1;font-size:20px;color:#94a3b8;text-align:center;display:flex;align-items:center;justify-content:center;">⬇ ⬆</div>
+        <div style="flex:1;font-size:20px;color:#94a3b8;text-align:center;display:flex;align-items:center;justify-content:center;">⬇ ⬆</div>
+      </div>
+
+      <div style="display:flex;gap:20px;width:80%;">
+        <div style="flex:1;background:#dcfce7;border:2px solid #22c55e;border-radius:10px;padding:12px 20px;text-align:center;">
+          <div style="font-weight:700;font-size:14px;">🗄️ SQLite</div>
+          <div style="font-size:12px;color:#475569;">本地数据库</div>
+        </div>
+        <div style="flex:1;background:#f3e8ff;border:2px solid #a855f7;border-radius:10px;padding:12px 20px;text-align:center;">
+          <div style="font-weight:700;font-size:14px;">🤖 DeepSeek API</div>
+          <div style="font-size:12px;color:#475569;">AI 周报/月报</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>工具包插件机制</h3>
+  <div class="mockup">
+    <div class="mockup-header">如何添加新工具包</div>
+    <div class="mockup-body">
+      <p style="margin:0 0 12px 0;font-size:14px;">每个工具包是一个独立文件夹，放在 <code>tools/</code> 目录下，自动注册到导航栏：</p>
+      <pre style="background:#1e293b;color:#e2e8f0;padding:16px;border-radius:8px;font-size:13px;margin:0;">
+tools/
+├── todo-summary/          ← 待办 & 总结（第一个工具包）
+│   ├── index.ts           ← 导出：名称、图标、路由、组件
+│   ├── components/        ← 该工具包的 React 组件
+│   └── api/               ← 该工具包的后端路由
+├── future-tool-2/         ← 未来的工具包，照这个模板来
+└── future-tool-3/
+      </pre>
+      <p style="margin:12px 0 0 0;font-size:13px;color:#64748b;">添加工具包只需：新建文件夹 → 实现接口 → 放到 tools/ 目录 → 自动出现在导航栏</p>
+    </div>
+  </div>
+</div>

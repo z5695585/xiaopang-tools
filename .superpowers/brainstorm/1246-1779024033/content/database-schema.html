@@ -1,0 +1,64 @@
+<h2>数据库设计</h2>
+<p class="subtitle">SQLite 表结构 — 支持待办层级、标签、完成追踪</p>
+
+<div class="mockup">
+  <div class="mockup-header">核心表结构</div>
+  <div class="mockup-body">
+    <pre style="background:#1e293b;color:#e2e8f0;padding:20px;border-radius:8px;font-size:13px;margin:0;line-height:1.6;">
+-- 待办事项（支持父子层级）
+CREATE TABLE todos (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  parent_id   INTEGER REFERENCES todos(id),  -- NULL=顶级待办, 非NULL=子待办
+  title       TEXT NOT NULL,
+  description TEXT,
+  completed   INTEGER DEFAULT 0,             -- 0=未完成, 1=已完成
+  completed_at TEXT,                          -- 完成时间 ISO 字符串
+  sort_order  INTEGER DEFAULT 0,             -- 排序
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL
+);
+
+-- 标签
+CREATE TABLE tags (
+  id    INTEGER PRIMARY KEY AUTOINCREMENT,
+  name  TEXT NOT NULL UNIQUE,
+  color TEXT DEFAULT '#3b82f6'
+);
+
+-- 待办-标签 多对多关联
+CREATE TABLE todo_tags (
+  todo_id INTEGER REFERENCES todos(id),
+  tag_id  INTEGER REFERENCES tags(id),
+  PRIMARY KEY (todo_id, tag_id)
+);
+
+-- 工具包注册表（可扩展）
+CREATE TABLE tool_packages (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  name       TEXT NOT NULL UNIQUE,  -- e.g. 'todo-summary'
+  enabled    INTEGER DEFAULT 1
+);
+    </pre>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <h3>查询示例</h3>
+  <div class="mockup">
+    <div class="mockup-header">本周完成的待办（含子待办）</div>
+    <div class="mockup-body">
+      <pre style="background:#1e293b;color:#e2e8f0;padding:16px;border-radius:8px;font-size:13px;margin:0;">
+-- 本周完成的所有项目（包括子待办）
+SELECT t.*, GROUP_CONCAT(tg.name) as tags
+FROM todos t
+LEFT JOIN todo_tags tt ON t.id = tt.todo_id
+LEFT JOIN tags tg ON tt.tag_id = tg.id
+WHERE t.completed = 1
+  AND t.completed_at >= '2026-05-11'  -- 本周一
+  AND t.completed_at <= '2026-05-17'  -- 本周日
+GROUP BY t.id
+ORDER BY t.completed_at DESC;
+      </pre>
+    </div>
+  </div>
+</div>

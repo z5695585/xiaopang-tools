@@ -1,0 +1,72 @@
+<h2>API 路由 & AI 总结</h2>
+<p class="subtitle">RESTful API + DeepSeek 周报/月报生成</p>
+
+<h3>API 路由设计</h3>
+<div class="mockup">
+  <div class="mockup-body">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#f1f5f9;">
+        <th style="text-align:left;padding:10px;">方法</th>
+        <th style="text-align:left;padding:10px;">路径</th>
+        <th style="text-align:left;padding:10px;">说明</th>
+      </tr>
+      <tr><td style="padding:10px;color:#22c55e;font-weight:600;">GET</td><td style="padding:10px;">/api/todos</td><td style="padding:10px;">获取待办列表（支持 ?tag= & ?status=）</td></tr>
+      <tr><td style="padding:10px;color:#3b82f6;font-weight:600;">POST</td><td style="padding:10px;">/api/todos</td><td style="padding:10px;">创建待办</td></tr>
+      <tr><td style="padding:10px;color:#f59e0b;font-weight:600;">PUT</td><td style="padding:10px;">/api/todos/:id</td><td style="padding:10px;">更新待办（标题、完成状态等）</td></tr>
+      <tr><td style="padding:10px;color:#ef4444;font-weight:600;">DELETE</td><td style="padding:10px;">/api/todos/:id</td><td style="padding:10px;">删除待办</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:10px;color:#22c55e;font-weight:600;">GET</td><td style="padding:10px;">/api/todos/completed?period=week|month</td><td style="padding:10px;">按周/月查已完成（含子待办）</td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:10px;color:#3b82f6;font-weight:600;">POST</td><td style="padding:10px;">/api/summary/generate</td><td style="padding:10px;">生成 AI 周报/月报</td></tr>
+      <tr><td style="padding:10px;color:#22c55e;font-weight:600;">GET</td><td style="padding:10px;">/api/tags</td><td style="padding:10px;">获取所有标签</td></tr>
+      <tr><td style="padding:10px;color:#3b82f6;font-weight:600;">POST</td><td style="padding:10px;">/api/tags</td><td style="padding:10px;">创建标签</td></tr>
+    </table>
+  </div>
+</div>
+
+<h3 style="margin-top:24px;">AI 总结流程</h3>
+<div class="mockup">
+  <div class="mockup-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:#f8fafc;border-radius:8px;">
+      <div style="text-align:center;flex:1;">
+        <div style="font-weight:600;">1. 用户点击</div>
+        <div style="color:#64748b;font-size:13px;">"生成本周周报"</div>
+      </div>
+      <div style="color:#94a3b8;">→</div>
+      <div style="text-align:center;flex:1;">
+        <div style="font-weight:600;">2. 后端查询</div>
+        <div style="color:#64748b;font-size:13px;">本周完成的待办+子待办</div>
+      </div>
+      <div style="color:#94a3b8;">→</div>
+      <div style="text-align:center;flex:1;">
+        <div style="font-weight:600;">3. 组装 Prompt</div>
+        <div style="color:#64748b;font-size:13px;">按模板格式发给 DeepSeek</div>
+      </div>
+      <div style="color:#94a3b8;">→</div>
+      <div style="text-align:center;flex:1;">
+        <div style="font-weight:600;">4. 返回总结</div>
+        <div style="color:#64748b;font-size:13px;">展示在页面上，可复制</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3 style="margin-top:24px;">周报/月报格式（可配置）</h3>
+<div class="mockup">
+  <div class="mockup-body">
+    <pre style="background:#1e293b;color:#e2e8f0;padding:20px;border-radius:8px;font-size:13px;margin:0;">
+## 周报（{日期范围}）
+
+### 本周完成
+- [标签:工作] 完成了XX功能的接口开发
+  - 子任务：数据库表设计
+  - 子任务：API 调试通过
+- [标签:学习] 阅读了DeepSeek API文档
+  - 子任务：跑通Quick Start示例
+
+### 本周总结
+{AI 根据完成内容自动生成的总结段落}
+
+### 下周计划（可选）
+{AI 根据未完成待办推测的下周计划}
+    </pre>
+  </div>
+</div>

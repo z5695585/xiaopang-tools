@@ -1,0 +1,67 @@
+<h2>前端组件树</h2>
+<p class="subtitle">React 组件层级结构</p>
+
+<div class="mockup">
+  <div class="mockup-header">组件树</div>
+  <div class="mockup-body">
+    <pre style="background:#1e293b;color:#e2e8f0;padding:20px;border-radius:8px;font-size:13px;margin:0;line-height:1.8;">
+App
+├── Sidebar                    ← 可扩展导航栏
+│   ├── ToolList               ← 已注册的工具包列表
+│   │   └── ToolItem × N       ← 每个工具包的导航项（名称+图标）
+│   └── AddToolButton          ← 预留：将来添加新工具的入口
+│
+├── ToolRouter                 ← 根据当前选中的工具包，渲染对应组件
+│   │
+│   └── [TodoSummaryTool]      ← 当前唯一的工具包
+│       ├── TodoPage
+│       │   ├── TodoInput      ← 添加待办输入框（支持子任务）
+│       │   ├── TodoList       ← 待办列表（支持拖拽排序）
+│       │   │   └── TodoItem × N
+│       │   │       ├── Checkbox
+│       │   │       ├── Title / Description
+│       │   │       ├── TagBadge × N   ← 标签
+│       │   │       ├── SubTodoList    ← 子待办列表
+│       │   │       │   └── SubTodoItem × N
+│       │   │       └── Actions (编辑/删除/添加子任务)
+│       │   └── TagFilter      ← 按标签筛选
+│       │
+│       ├── CompletedPage      ← 已完成列表
+│       │   ├── ViewToggle     ← 周视图 / 月视图 切换
+│       │   ├── WeekView       ← 本周完成的待办+子待办
+│       │   │   ├── WeekSummary     ← AI 生成周报按钮
+│       │   │   └── CompletedList   ← 完成项列表
+│       │   └── MonthView      ← 本月完成的待办+子待办
+│       │       ├── MonthSummary    ← AI 生成月报按钮
+│       │       └── CompletedList
+│       │
+│       └── TagManagePage      ← 标签管理
+│           ├── TagCreate       ← 新建标签
+│           └── TagList × N     ← 标签列表（编辑/删除）
+    </pre>
+  </div>
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <h3>关键设计决策</h3>
+  <div class="options">
+    <div class="option" style="cursor:default;border-left-color:#22c55e;">
+      <div class="content">
+        <h3>工具包隔离</h3>
+        <p>每个工具包有自己的 components/ 和 api/ 目录，互不依赖。导航栏只读取每个工具包的注册信息（名称、图标、路由）</p>
+      </div>
+    </div>
+    <div class="option" style="cursor:default;border-left-color:#22c55e;">
+      <div class="content">
+        <h3>子待办也计入完成统计</h3>
+        <p>周视图/月视图遍历所有待办的子待办，完成的子待办和完成的父待办一起列出，确保 AI 总结能看到完整的进度</p>
+      </div>
+    </div>
+    <div class="option" style="cursor:default;border-left-color:#22c55e;">
+      <div class="content">
+        <h3>状态管理：React Context + useReducer</h3>
+        <p>对于这个规模的项目，不需要 Redux。Context 足够管理当前工具包状态，数据通过 API 与后端同步</p>
+      </div>
+    </div>
+  </div>
+</div>

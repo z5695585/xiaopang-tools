@@ -11,3 +11,11 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+// 标签
+export interface Tag {
+  id: number;
+  name: string;
+  color: string;
+  todo_count?: number;
+}

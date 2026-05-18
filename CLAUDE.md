@@ -19,7 +19,7 @@ cd client && npm run dev
 - 前端：React 18 + TypeScript + Vite + Tailwind CSS + shadcn/ui
 - 后端：Node.js + Express + TypeScript + tsx
 - 数据库：SQLite (better-sqlite3)
-- AI：DeepSeek API（二期）
+- AI：支持 DeepSeek / 火山引擎等 OpenAI 兼容 API（通过 `server/.env` 配置）
 
 ### 关键设计决策
 
@@ -29,12 +29,35 @@ cd client && npm run dev
 - **数据库迁移**：轻量版本号迁移，每个迁移用 `BEGIN...COMMIT` 事务包裹
 - **前端不引入 TanStack Query/zustand**：用 React Context + 轻量 `useApi` hook 即可
 
+### 工具包 API 路由
+
+所有工具包 API 统一挂在 `/api/<tool-id>/` 下：
+
+```
+/api/todo-summary/todos     — 待办 CRUD + 排序
+/api/todo-summary/tags      — 标签 CRUD
+/api/todo-summary/templates — AI 总结模板 CRUD
+/api/todo-summary/summary   — 周月视图数据 + AI 生成
+```
+
 ### 工具包开发
 
 添加新工具包：
 1. `client/src/tools/<id>/index.tsx` — 定义 meta 常量 + React 组件
 2. `client/src/tools/registry.ts` — 注册 `ClientToolPackage`
-3. 可选：`server/src/routes/<id>.ts` — 后端路由，注册到 `server/src/tools/registry.ts`
+3. 如需后端路由：`server/src/routes/<id>.ts` — 实现路由，在 `server/src/tools/registry.ts` 中挂到 `mainRouter`
+
+### AI API 配置
+
+`server/.env`（已 gitignore）：
+
+```
+AI_API_PROVIDER=deepseek
+AI_API_KEY=sk-xxx
+AI_API_BASE_URL=https://api.deepseek.com/v1
+AI_API_MODEL=deepseek-chat
+AI_API_TEMPERATURE=0.7
+```
 
 ---
 

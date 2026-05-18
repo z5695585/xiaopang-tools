@@ -12,7 +12,7 @@
 | UI | Tailwind CSS + shadcn/ui |
 | 后端 | Node.js + Express + TypeScript |
 | 数据库 | SQLite (better-sqlite3) |
-| AI | DeepSeek API（二期） |
+| AI | DeepSeek / 火山引擎等 OpenAI 兼容 API |
 
 ## 项目结构
 
@@ -26,6 +26,16 @@ XiaoPang_Tools/
 │       ├── tools/
 │       │   ├── registry.ts    # 前端工具注册表
 │       │   └── todo-summary/  # 待办 & 总结工具包
+│       │       ├── index.tsx  # 主入口（筛选栏 + 视图路由）
+│       │       ├── context.tsx
+│       │       └── components/
+│       │           ├── TodoList.tsx
+│       │           ├── TodoItem.tsx
+│       │           ├── TodoForm.tsx
+│       │           ├── TagManage.tsx
+│       │           ├── WeekMonthView.tsx
+│       │           ├── TemplateSettings.tsx
+│       │           └── SummaryModal.tsx
 │       └── hooks/
 │           └── useApi.ts      # 类型安全的 API 调用 hook
 ├── server/                    # Node.js 后端
@@ -33,15 +43,18 @@ XiaoPang_Tools/
 │       ├── index.ts           # Express 入口
 │       ├── db.ts              # SQLite 连接
 │       ├── migrate.ts         # 迁移引擎
-│       ├── migrations/        # 迁移文件（001_xxx.ts）
+│       ├── migrations/        # 001_initial / 002_todo_fields
 │       ├── middleware/
 │       │   └── errorHandler.ts
 │       ├── routes/
-│       │   └── health.ts      # 健康检查
+│       │   ├── tags.ts        # 标签 CRUD
+│       │   ├── todos.ts       # 待办 CRUD + 排序
+│       │   ├── templates.ts   # 模板 CRUD
+│       │   └── summary.ts     # 周月视图数据 + AI 生成
 │       └── tools/
 │           └── registry.ts    # 后端工具注册表
 ├── shared/                    # 前后端共享类型（纯声明，无运行时值）
-│   └── types.ts
+│   └── types.ts               # Todo, Tag, Template, SummaryData 等
 └── docs/
     └── superpowers/
         ├── specs/             # 设计文档
@@ -77,12 +90,13 @@ cd client && npm run dev        # http://localhost:5173
 - [x] 统一 API 响应格式 + 健康检查
 - [x] 前后端联调（Vite proxy）
 
-## 二期范围（待规划）
+## 二期范围（已完成）
 
-- [ ] 待办 CRUD（含子待办层级）
-- [ ] 标签管理
-- [ ] 已完成列表（周视图 / 月视图）
-- [ ] DeepSeek AI 周报/月报生成
+- [x] 待办 CRUD（含子待办层级、优先级、截止日期）
+- [x] 标签管理（含颜色选择器、使用计数）
+- [x] 已完成列表 — 周视图 / 月视图，按项目标签分组
+- [x] AI 周报/月报生成（支持 DeepSeek / 火山引擎，模板可自定义）
+- [x] 软删除、拖拽排序、风险/重点关注标记
 
 ## 开发约定
 
@@ -90,3 +104,4 @@ cd client && npm run dev        # http://localhost:5173
 - 工具包的 meta 常量就近定义在各自的注册入口，不放在 shared
 - API 响应统一为 `{ success: boolean; data?: T; error?: string; }`
 - 每个数据库迁移用 `BEGIN...COMMIT` 包裹，确保原子性
+- 后端多路由工具包用 `mainRouter.use()` 合并子路由

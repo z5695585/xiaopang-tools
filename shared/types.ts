@@ -48,3 +48,49 @@ export interface Tag {
   color: string;
   todo_count?: number;
 }
+
+// 总结相关
+export interface SummaryGroup {
+  tag: Tag;
+  completed: SummaryItem[];
+  pending: SummaryItem[];
+  risks: SummaryItem[];
+  focus: SummaryItem[];
+}
+
+export interface SummaryItem {
+  title: string;
+  subCount: number;
+  completedAt?: string;
+  isManual?: boolean;
+}
+
+export interface SummaryData {
+  period: string;
+  groups: SummaryGroup[];
+}
+
+// 输入类型
+export interface CreateTodoInput {
+  parent_id?: number | null;
+  title: string;
+  description?: string;
+  priority?: '高' | '中' | '低';
+  due_date?: string | null;
+  tag_ids?: number[];
+}
+
+export interface UpdateTodoInput {
+  title?: string;
+  description?: string;
+  priority?: '高' | '中' | '低';
+  due_date?: string | null;
+  completed?: number;
+  is_risk?: number;
+  is_focus?: number;
+  tag_ids?: number[];
+}
+
+export interface ReorderInput {
+  items: { id: number; sort_order: number }[];
+}

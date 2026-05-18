@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import type { ToolPackageMeta } from '@shared/types';
 import tagsRouter from '../routes/tags';
+import todosRouter from '../routes/todos';
 
 export interface ServerToolPackage {
   meta: ToolPackageMeta;
@@ -16,6 +17,7 @@ const todoSummaryMeta: ToolPackageMeta = {
 // 合并子路由到同一个工具包下（后续任务会添加更多子路由）
 const mainRouter = Router();
 mainRouter.use('/tags', tagsRouter);
+mainRouter.use('/todos', todosRouter);
 
 export const toolRegistrations: ServerToolPackage[] = [
   { meta: todoSummaryMeta, apiRouter: mainRouter },

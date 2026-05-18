@@ -10,10 +10,10 @@
 
 ```sql
 ALTER TABLE todos ADD COLUMN priority TEXT DEFAULT '中';     -- 高/中/低
-ALTER TABLE todos ADD COLUMN due_date TEXT;                  -- 截止日期 ISO
+ALTER TABLE todos ADD COLUMN due_date TEXT;                  -- 截止日期 ISO 字符串
 ALTER TABLE todos ADD COLUMN is_risk INTEGER DEFAULT 0;      -- 0/1 风险标记
 ALTER TABLE todos ADD COLUMN is_focus INTEGER DEFAULT 0;     -- 0/1 重点关注
-ALTER TABLE todos ADD COLUMN deleted_at TEXT;                -- 软删除
+ALTER TABLE todos ADD COLUMN deleted_at TEXT;                -- 软删除时间戳
 ```
 
 ### templates 表（新建）
@@ -23,9 +23,13 @@ CREATE TABLE templates (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   name       TEXT NOT NULL,
   content    TEXT NOT NULL,
-  is_default INTEGER DEFAULT 0
+  is_default INTEGER DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 ```
+
+默认模板在迁移脚本中直接 INSERT，代码层面禁止删除 `is_default=1` 的模板（API 返回 400）。
 
 ## 页面结构
 
@@ -66,18 +70,17 @@ CREATE TABLE templates (
   - `{{risks}}` — 风险项
   - `{{focus}}` — 重点关注项
   - `{{ai_summary}}` — AI 综合总结段落
-- **默认模板**：内置，不可删除
-- **自定义模板**：用户创建，支持切换
+- **默认模板**：内置，is_default=1，代码层面禁止删除
+- **自定义模板**：用户创建，可自由编辑/删除/切换
 
 ## API 路由
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
-| GET | /api/todos | 查询待办（?status=all|active|completed&tag_id=） |
+| GET | /api/todos | 查询待办（?status=all\|active\|completed&tag_id=） |
 | POST | /api/todos | 创建待办 |
 | PUT | /api/todos/:id | 更新待办 |
 | DELETE | /api/todos/:id | 软删除待办 |
-| GET | /api/todos/completed | 已完成查询（?period=week|month&from=&to=） |
 | PUT | /api/todos/reorder | 批量更新 sort_order |
 | GET | /api/tags | 标签列表（含使用计数） |
 | POST | /api/tags | 创建标签 |
@@ -86,39 +89,103 @@ CREATE TABLE templates (
 | GET | /api/templates | 模板列表 |
 | POST | /api/templates | 创建模板 |
 | PUT | /api/templates/:id | 更新模板 |
-| DELETE | /api/templates/:id | 删除模板 |
+| DELETE | /api/templates/:id | 删除模板（is_default=1 返回 400） |
+| GET | /api/summary/data | 获取总结所需数据（?period=week\|month&from=&to=） |
 | POST | /api/summary/generate | 生成 AI 总结 |
 
 ## AI 总结流程
 
+### 两步式处理
+
 ```
-用户点击生成 → 收集数据(已完成+未完成+风险+按标签分组) → 套用模板填充占位符 →
-发 DeepSeek API 生成总结 → 返回渲染后内容 → 弹窗展示（可复制/重新生成）
+用户点击生成
+  → Step 1: GET /api/summary/data 获取结构化数据
+  → Step 2: 后端用数据填充模板占位符（草稿）
+  → Step 3: POST /api/summary/generate 将草稿发给 AI 润色
+  → Step 4: 返回最终报告 → 弹窗展示
 ```
 
-1. 后端根据 `period` 查询完成/未完成项，按标签分组
-2. 读取当前模板，将数据填充到模板对应位置
-3. 调用 DeepSeek Chat API，发送填充后的 prompt
-4. 返回 AI 生成的完整报告
+**Step 1 — 数据收集（`GET /api/summary/data`）**
 
-**生成请求 payload：**
+返回结构化数据，供填充占位符使用：
+
 ```typescript
-POST /api/summary/generate
-{
-  period: "week" | "month",
-  templateId: number
-}
-```
-
-**响应：**
-```typescript
+// 响应
 {
   success: true,
   data: {
-    content: string  // 渲染好的 markdown 文本
+    period: "2026-05-11 ~ 2026-05-17",
+    groups: [
+      {
+        tag: { id: 1, name: "项目1", color: "#3b82f6" },
+        completed: [
+          { title: "完成数据库表设计", subCount: 2, completedAt: "2026-05-15" },
+          { title: "API接口联调", subCount: 0, completedAt: "2026-05-14" }
+        ],
+        pending: [
+          { title: "前端页面对接", subCount: 1 }
+        ],
+        risks: [
+          { title: "性能优化延期", isManual: true }
+        ],
+        focus: [
+          { title: "用户反馈跟进", isManual: true }
+        ]
+      },
+      // ... 更多项目
+    ]
   }
 }
 ```
+
+**Step 2 — 填充草稿（后端逻辑，不暴露 API）**
+
+后端读取当前模板，逐个替换占位符：
+
+- `{{week_range}}` → `2026-05-11 ~ 2026-05-17`
+- `{{completed}}` → 格式化后的完成列表文本
+- `{{pending}}` → 格式化后的未完成列表文本
+- `{{risks}}` → 手动标记的风险项 + 留空（等待 AI 补充）
+- `{{focus}}` → 手动标记的重点项 + 留空（等待 AI 补充）
+- `{{ai_summary}}` → 标记位（等待 AI 生成）
+
+**Step 3 — AI 润色（`POST /api/summary/generate`）**
+
+```typescript
+// 请求
+{
+  templateId: number,
+  period: "week" | "month"
+}
+
+// 响应
+{
+  success: true,
+  data: {
+    content: string  // AI 生成的完整 markdown
+  }
+}
+```
+
+后端将填充好的草稿作为 system prompt 发送给 AI API，要求 AI：
+1. 检查并润色完成/待办列表的表述
+2. 分析数据，推断潜在风险和需要关注的事项（补充到 {{risks}} 和 {{focus}} 段）
+3. 生成一段综合总结（替换 {{ai_summary}}）
+4. 保持原有 markdown 结构和项目分组
+
+### AI API 配置
+
+支持多种 AI API，通过环境变量配置：
+
+| 环境变量 | 说明 | 示例 |
+|---|---|---|
+| `AI_API_PROVIDER` | 提供商 | `deepseek` / `volcano` |
+| `AI_API_KEY` | API 密钥 | `sk-xxx` |
+| `AI_API_BASE_URL` | API 地址 | `https://api.deepseek.com/v1` |
+| `AI_API_MODEL` | 模型名 | `deepseek-chat` / `doubao-pro-32k` |
+| `AI_API_TEMPERATURE` | 温度（默认 0.7） | `0.7` |
+
+后端根据 `AI_API_PROVIDER` 选择对应的 API 端点，统一用 OpenAI-compatible chat completions 格式调用。
 
 ## 前端状态管理
 
@@ -139,11 +206,11 @@ POST /api/summary/generate
 | 占位符 | 替换内容 |
 |---|---|
 | `{{week_range}}` | 时间范围（如 "2026-05-11 ~ 2026-05-17"） |
-| `{{completed}}` | 本周/月已完成（按项目分组） |
-| `{{pending}}` | 未完成待办（按项目分组） |
-| `{{risks}}` | 标记为风险的项 + AI 推断的风险 |
-| `{{focus}}` | 标记为重点关注的项 + AI 推断 |
-| `{{ai_summary}}` | AI 综合总结段落 |
+| `{{completed}}` | 已完成项，按项目分组列出 |
+| `{{pending}}` | 未完成项，按项目分组列出 |
+| `{{risks}}` | 手动标记的风险项 + AI 推断补充 |
+| `{{focus}}` | 手动标记的重点项 + AI 推断补充 |
+| `{{ai_summary}}` | AI 生成的综合总结段落 |
 
 ## 默认模板
 
@@ -167,6 +234,7 @@ POST /api/summary/generate
 2. 子待办：创建/完成子待办，父待办展开可见
 3. 标签管理：创建/编辑/删除标签，待办关联标签
 4. 周月视图：切换周/月，按标签分组显示完成项
-5. AI 总结：生成周报/月报，弹窗展示，可复制
-6. 模板设置：编辑/切换模板，占位符帮助可见
-7. 软删除：删除待办后数据保留，不在列表中显示
+5. `GET /api/summary/data`：返回指定时间范围的完整结构化数据
+6. AI 总结：生成周报/月报，弹窗展示，可复制
+7. 模板设置：编辑/切换模板，占位符帮助可见，默认模板不可删除
+8. 软删除：删除待办后数据保留，不在列表中显示

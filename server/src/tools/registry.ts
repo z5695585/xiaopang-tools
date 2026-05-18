@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { ToolPackageMeta } from '@shared/types';
 import tagsRouter from '../routes/tags';
 import todosRouter from '../routes/todos';
+import templatesRouter from '../routes/templates';
 
 export interface ServerToolPackage {
   meta: ToolPackageMeta;
@@ -18,6 +19,7 @@ const todoSummaryMeta: ToolPackageMeta = {
 const mainRouter = Router();
 mainRouter.use('/tags', tagsRouter);
 mainRouter.use('/todos', todosRouter);
+mainRouter.use('/templates', templatesRouter);
 
 export const toolRegistrations: ServerToolPackage[] = [
   { meta: todoSummaryMeta, apiRouter: mainRouter },

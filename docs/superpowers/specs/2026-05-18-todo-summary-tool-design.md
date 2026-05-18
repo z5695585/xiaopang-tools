@@ -95,15 +95,24 @@ CREATE TABLE templates (
 
 ## AI 总结流程
 
-### 两步式处理
+### 两步式处理（前端一键调用）
+
+用户点击"生成周报"按钮，前端只调一个 API：
 
 ```
-用户点击生成
-  → Step 1: GET /api/summary/data 获取结构化数据
-  → Step 2: 后端用数据填充模板占位符（草稿）
-  → Step 3: POST /api/summary/generate 将草稿发给 AI 润色
-  → Step 4: 返回最终报告 → 弹窗展示
+POST /api/summary/generate { templateId, period }
+  → 后端内部：
+      1. 收集数据（按 period 查询完成/未完成/风险项，按标签分组）
+      2. 用数据填充模板占位符（草稿）
+      3. 将草稿发给 AI 润色 + 补充分析
+      4. 返回最终报告
+  → 前端弹窗展示（可复制/重新生成）
 ```
+
+两个 API 各司其职：
+
+- `GET /api/summary/data` — 为**周月视图页面**提供结构化数据，渲染完成/进行中列表
+- `POST /api/summary/generate` — 一键生成 AI 总结，后端内部完成数据收集→填模板→调 AI→返回
 
 **Step 1 — 数据收集（`GET /api/summary/data`）**
 
@@ -185,7 +194,7 @@ CREATE TABLE templates (
 | `AI_API_MODEL` | 模型名 | `deepseek-chat` / `doubao-pro-32k` |
 | `AI_API_TEMPERATURE` | 温度（默认 0.7） | `0.7` |
 
-后端根据 `AI_API_PROVIDER` 选择对应的 API 端点，统一用 OpenAI-compatible chat completions 格式调用。
+后端根据 `AI_API_PROVIDER` 选择对应的 API 端点，统一用 OpenAI-compatible chat completions 格式调用。环境变量配置在 `server/.env` 文件中，该文件已在 `.gitignore` 中排除。
 
 ## 前端状态管理
 
@@ -226,6 +235,9 @@ CREATE TABLE templates (
 
 ## 重点关注
 {{focus}}
+
+## 本周总结
+{{ai_summary}}
 ```
 
 ## 验证

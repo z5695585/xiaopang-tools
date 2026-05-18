@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import * as m001 from './migrations/001_initial_schema';
+import * as m002 from './migrations/002_todo_template_fields';
 
 interface Migration {
   version: number;
@@ -9,6 +10,7 @@ interface Migration {
 
 const migrations: Migration[] = [
   { version: m001.version, description: m001.description, up: m001.up },
+  { version: m002.version, description: m002.description, up: m002.up },
 ].sort((a, b) => a.version - b.version);
 
 export function runMigrations(db: Database.Database): void {

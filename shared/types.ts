@@ -12,7 +12,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-// === 二期新增 ===
+// === 二期：待办 & 总结工具包 ===
 
 export interface Todo {
   id: number;

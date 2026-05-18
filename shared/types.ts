@@ -22,6 +22,25 @@ export interface Template {
   updated_at: string;
 }
 
+// 待办事项
+export interface Todo {
+  id: number;
+  parent_id: number | null;
+  title: string;
+  description: string;
+  priority: '高' | '中' | '低';
+  due_date: string | null;
+  completed: number;
+  completed_at: string | null;
+  sort_order: number;
+  is_risk: number;
+  is_focus: number;
+  created_at: string;
+  updated_at: string;
+  tags?: Tag[];
+  children?: Todo[];
+}
+
 // 标签
 export interface Tag {
   id: number;

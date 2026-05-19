@@ -111,8 +111,8 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
         </div>
 
         <div className="flex gap-2 justify-end pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-slate-600 bg-slate-100 rounded-md hover:bg-slate-200">取消</button>
-          <button type="submit" className="px-4 py-2 text-sm text-white bg-sky-500 rounded-md hover:bg-sky-600">{todo ? '保存' : '创建'}</button>
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-md bg-secondary hover:bg-accent">取消</button>
+          <button type="submit" className="px-4 py-2 text-sm text-primary-foreground bg-primary rounded-md hover:bg-primary/90">{todo ? '保存' : '创建'}</button>
         </div>
       </form>
     </div>

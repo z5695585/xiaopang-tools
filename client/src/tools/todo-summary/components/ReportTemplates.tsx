@@ -53,11 +53,11 @@ export function ReportTemplates() {
               <div
                 key={tpl.id}
                 onClick={() => setSelectedId(tpl.id)}
-                className={`bg-card border rounded-xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer ${
-                  selectedId === tpl.id ? 'border-primary ring-2 ring-primary/20' : 'border-border'
+                className={`bg-warm-card border rounded-xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer ${
+                  selectedId === tpl.id ? 'border-warm-primary ring-2 ring-warm-primary/20' : 'border-warm-border'
                 }`}
               >
-                <div className="w-12 h-12 bg-accent rounded-lg flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-warm-secondary rounded-lg flex items-center justify-center mb-4">
                   <Icon className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-medium mb-2 text-sm">{tpl.name}</h3>
@@ -81,28 +81,28 @@ export function ReportTemplates() {
 
         {/* 编辑区 */}
         {selected && (
-          <div className="bg-muted rounded-xl p-6">
+          <div className="bg-warm-secondary rounded-xl p-6">
             <h3 className="font-medium mb-4 text-sm">编辑 — {selected.name}</h3>
             <div className="bg-card rounded-lg p-6 space-y-4">
               <textarea
                 value={content}
                 onChange={e => setContent(e.target.value)}
-                className="w-full h-48 px-3 py-2 border border-border rounded-md text-sm font-mono bg-background"
+                className="w-full h-48 px-3 py-2 border border-warm-border rounded-md text-sm font-mono bg-white"
               />
               <div className="flex gap-2">
-                <button onClick={handleSave} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary-hover">保存</button>
-                <button onClick={() => setShowHelp(!showHelp)} className="px-4 py-2 bg-secondary hover:bg-accent rounded-lg text-sm">
+                <button onClick={handleSave} className="px-4 py-2 bg-warm-primary text-white rounded-lg text-sm hover:bg-warm-primary-hover">保存</button>
+                <button onClick={() => setShowHelp(!showHelp)} className="px-4 py-2 bg-warm-secondary hover:bg-warm-border rounded-lg text-sm">
                   {showHelp ? '隐藏' : '显示'}占位符帮助
                 </button>
               </div>
 
               {showHelp && (
-                <div className="bg-accent rounded-lg p-4 mt-3">
+                <div className="bg-warm-secondary rounded-lg p-4 mt-3">
                   <h4 className="text-xs font-medium mb-2">可用占位符（点击插入）</h4>
                   <div className="space-y-1.5">
                     {PLACEHOLDER_HELP.map(ph => (
                       <div key={ph.key} className="flex items-center gap-2">
-                        <button onClick={() => insertPlaceholder(ph.key)} className="text-xs font-mono bg-primary/10 text-primary px-1.5 py-0.5 rounded hover:bg-primary/20">
+                        <button onClick={() => insertPlaceholder(ph.key)} className="text-xs font-mono bg-warm-primary/10 text-warm-primary px-1.5 py-0.5 rounded hover:bg-warm-primary/20">
                           {ph.key}
                         </button>
                         <span className="text-xs text-muted-foreground">{ph.desc}</span>

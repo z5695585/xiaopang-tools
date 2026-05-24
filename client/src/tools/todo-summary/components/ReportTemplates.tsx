@@ -58,14 +58,14 @@ export function ReportTemplates() {
                 }`}
               >
                 <div className="w-12 h-12 bg-warm-secondary rounded-lg flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6 text-primary" />
+                  <Icon className="w-6 h-6 text-warm-primary" />
                 </div>
                 <h3 className="font-medium mb-2 text-sm">{tpl.name}</h3>
-                <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+                <p className="text-xs text-warm-muted mb-4 leading-relaxed">
                   {tpl.is_default ? '系统默认模板，不可删除' : '自定义模板'}
                 </p>
                 {tpl.is_default ? (
-                  <span className="text-xs text-primary font-medium">默认</span>
+                  <span className="text-xs text-warm-primary font-medium">默认</span>
                 ) : (
                   <button
                     onClick={e => { e.stopPropagation(); /* delete logic */ }}
@@ -105,7 +105,7 @@ export function ReportTemplates() {
                         <button onClick={() => insertPlaceholder(ph.key)} className="text-xs font-mono bg-warm-primary/10 text-warm-primary px-1.5 py-0.5 rounded hover:bg-warm-primary/20">
                           {ph.key}
                         </button>
-                        <span className="text-xs text-muted-foreground">{ph.desc}</span>
+                        <span className="text-xs text-warm-muted">{ph.desc}</span>
                       </div>
                     ))}
                   </div>

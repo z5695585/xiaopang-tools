@@ -33,7 +33,7 @@ export function AiSummaryPanel({ period, onClose }: Props) {
       <div className="flex-1 overflow-auto px-6 py-4 text-sm">
         {!content && !loading && (
           <div className="text-center py-8">
-            <p className="text-muted-foreground mb-4">点击生成{period === 'week' ? '周报' : '月报'}总结</p>
+            <p className="text-warm-muted mb-4">点击生成{period === 'week' ? '周报' : '月报'}总结</p>
             <button
               onClick={handleGenerate}
               className="px-6 py-2 bg-warm-primary text-white rounded-lg text-sm font-medium hover:bg-warm-primary-hover"
@@ -43,7 +43,7 @@ export function AiSummaryPanel({ period, onClose }: Props) {
           </div>
         )}
 
-        {loading && <p className="text-center text-muted-foreground py-8">生成中...</p>}
+        {loading && <p className="text-center text-warm-muted py-8">生成中...</p>}
 
         {content && (
           <div className="whitespace-pre-wrap font-sans text-foreground leading-relaxed">{content}</div>

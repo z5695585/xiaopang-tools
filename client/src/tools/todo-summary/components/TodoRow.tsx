@@ -60,7 +60,7 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
           </Checkbox.Indicator>
         </Checkbox.Root>
 
-        <button onClick={() => setExpanded(!expanded)} className="p-1 hover:bg-accent rounded shrink-0">
+        <button onClick={() => setExpanded(!expanded)} className="p-1 hover:bg-warm-secondary rounded shrink-0">
           {expanded ? <ChevronDown className="w-4 h-4 text-warm-muted" /> : <ChevronRight className="w-4 h-4 text-warm-muted" />}
         </button>
 
@@ -102,7 +102,7 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
       {expanded && (
         <div className="ml-14 border-l-2 border-warm-primary/20 bg-warm-secondary px-4 py-2 space-y-1">
           {todo.description && (
-            <p className="text-sm text-muted-foreground py-1">{todo.description}</p>
+            <p className="text-sm text-warm-muted py-1">{todo.description}</p>
           )}
           {hasChildren && todo.children!.map(child => (
             <div key={child.id} className="flex items-center gap-3 py-1.5">
@@ -117,7 +117,7 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
                   </svg>
                 </Checkbox.Indicator>
               </Checkbox.Root>
-              <span className={`text-sm ${child.completed ? 'line-through text-muted-foreground' : ''}`}>
+              <span className={`text-sm ${child.completed ? 'line-through text-warm-muted' : ''}`}>
                 {child.title}
               </span>
               {child.priority && <div className={`w-2 h-2 rounded-full ${priorityColors[child.priority] || 'bg-slate-400'}`} />}

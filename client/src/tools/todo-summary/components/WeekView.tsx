@@ -61,14 +61,14 @@ export function WeekView() {
                 className={`rounded-lg border border-warm-border p-3 ${isToday ? 'bg-warm-secondary' : 'bg-white'}`}
               >
                 <div className="text-center mb-3">
-                  <div className="text-xs text-muted-foreground mb-1">{format(day, 'EEE', { locale: zhCN })}</div>
+                  <div className="text-xs text-warm-muted mb-1">{format(day, 'EEE', { locale: zhCN })}</div>
                   <div className={`text-lg font-medium ${isToday ? 'text-warm-primary' : ''}`}>{format(day, 'd')}</div>
                 </div>
                 <div className="space-y-2">
                   {summary?.groups?.flatMap(g =>
                     g.completed.map(c => ({ ...c, tag: g.tag }))
                   ).filter((t: any) => t.completedAt?.startsWith(dateKey)).map((t: any, j: number) => (
-                    <div key={j} className="text-xs p-2 rounded bg-warm-card border border-warm-border line-through text-muted-foreground">
+                    <div key={j} className="text-xs p-2 rounded bg-warm-card border border-warm-border line-through text-warm-muted">
                       {t.title}
                     </div>
                   ))}
@@ -85,7 +85,7 @@ export function WeekView() {
             <span>已完成: <span className="font-medium">{allCompleted}</span></span>
             <span>完成率: <span className="font-medium">{completionRate}%</span></span>
             <div className="flex-1 max-w-md">
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-2 bg-warm-secondary rounded-full overflow-hidden">
                 <div className="h-full bg-warm-primary transition-all" style={{ width: `${completionRate}%` }} />
               </div>
             </div>

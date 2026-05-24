@@ -52,7 +52,7 @@ export function MonthView() {
       <div className="flex-1 overflow-auto px-6 py-4">
         <div className="grid grid-cols-7 gap-2 mb-2">
           {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map(d => (
-            <div key={d} className="text-center text-xs font-medium text-muted-foreground py-2">{d}</div>
+            <div key={d} className="text-center text-xs font-medium text-warm-muted py-2">{d}</div>
           ))}
         </div>
 
@@ -70,11 +70,11 @@ export function MonthView() {
               >
                 <div className={`text-sm font-medium mb-1 ${
                   isToday ? 'bg-warm-primary text-white w-6 h-6 rounded-full flex items-center justify-center' :
-                  isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
+                  isCurrentMonth ? 'text-warm-text' : 'text-warm-muted'
                 }`}>
                   {format(day, 'd')}
                 </div>
-                <div className="space-y-0.5 text-[10px] text-muted-foreground">
+                <div className="space-y-0.5 text-[10px] text-warm-muted">
                   {isCurrentMonth && <div />}
                 </div>
               </div>
@@ -89,7 +89,7 @@ export function MonthView() {
             <span>已完成: <span className="font-medium">{allCompleted}</span></span>
             <span>完成率: <span className="font-medium">{completionRate}%</span></span>
             <div className="flex-1 max-w-md">
-              <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className="h-2 bg-warm-secondary rounded-full overflow-hidden">
                 <div className="h-full bg-warm-primary transition-all" style={{ width: `${completionRate}%` }} />
               </div>
             </div>

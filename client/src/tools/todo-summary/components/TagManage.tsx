@@ -21,12 +21,17 @@ export function TagManage({ onClose }: Props) {
 
   useEffect(() => { loadTags(); }, []);
 
+  const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    'x-auth-password': sessionStorage.getItem('auth_password') || '',
+  });
+
   const handleAdd = async () => {
     if (!newName.trim()) return;
     // 用原生 fetch 做 POST，避免 response（单个 Tag 对象）污染 useApi 中 Tag[] 类型的 state
     await fetch('/api/todo-summary/tags', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authHeaders(),
       body: JSON.stringify({ name: newName.trim(), color: newColor }),
     });
     setNewName('');
@@ -35,7 +40,7 @@ export function TagManage({ onClose }: Props) {
 
   const handleDelete = async (id: number) => {
     if (!confirm('确定删除此标签？已有待办不受影响。')) return;
-    await fetch(`/api/todo-summary/tags/${id}`, { method: 'DELETE' });
+    await fetch(`/api/todo-summary/tags/${id}`, { method: 'DELETE', headers: authHeaders() });
     loadTags();
   };
 

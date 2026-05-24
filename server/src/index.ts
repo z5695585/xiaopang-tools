@@ -5,6 +5,8 @@ import { getDb } from './db';
 import { runMigrations } from './migrate';
 import { toolRegistrations } from './tools/registry';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import authRouter from './routes/auth';
+import { authMiddleware } from './middleware/auth';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,9 +19,13 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // 健康检查
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ success: true, data: { ok: true } });
 });
+
+// 鉴权
+app.use('/api/auth', authRouter);
+app.use('/api', authMiddleware);
 
 // 注册工具包 API 路由
 for (const tool of toolRegistrations) {

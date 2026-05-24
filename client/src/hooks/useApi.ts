@@ -16,10 +16,15 @@ export function useApi<T = unknown>() {
 
   const request = useCallback(async (url: string, options?: RequestInit): Promise<ApiResponse<T> | null> => {
     setState(prev => ({ ...prev, loading: true, error: null }));
+    const password = sessionStorage.getItem('auth_password') || '';
     try {
       const res = await fetch(url, {
-        headers: { 'Content-Type': 'application/json' },
         ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-password': password,
+          ...(options?.headers || {}),
+        },
       });
       const json: ApiResponse<T> = await res.json();
       if (!json.success) {

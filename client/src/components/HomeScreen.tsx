@@ -36,7 +36,7 @@ export function HomeScreen({ onSelectTool }: Props) {
 
         {/* 图标网格 */}
         <div className="grid grid-cols-3 gap-4">
-          {allTools.map(tool => {
+          {allTools.map((tool, toolIndex) => {
             const isPlaceholder = tool.id.startsWith('placeholder');
             return (
               <button
@@ -44,12 +44,13 @@ export function HomeScreen({ onSelectTool }: Props) {
                 onClick={() => !isPlaceholder && onSelectTool(tool.id)}
                 disabled={isPlaceholder}
                 className={`
-                  bg-warm-card rounded-warm-card p-5 text-center transition-all duration-200
+                  animate-slide-up bg-warm-card rounded-warm-card p-5 text-center transition-all duration-200
                   ${isPlaceholder
                     ? 'border border-dashed border-warm-border opacity-70 cursor-default'
                     : 'border-2 border-warm-border shadow-warm hover:-translate-y-1 hover:shadow-warm-hover active:scale-95'
                   }
                 `}
+                style={{ animationDelay: `${toolIndex * 60}ms` }}
               >
                 <div className={`
                   w-14 h-14 rounded-warm-icon flex items-center justify-center text-[28px] mx-auto mb-3

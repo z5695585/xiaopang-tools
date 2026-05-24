@@ -13,13 +13,15 @@ function App() {
 
   if (activeToolId && activeTool) {
     return (
-      <ToolWorkspace
-        title={activeTool.meta.name}
-        icon={activeTool.meta.icon}
-        onBack={() => setActiveToolId(null)}
-      >
-        <activeTool.component />
-      </ToolWorkspace>
+      <div className="animate-fade-in">
+        <ToolWorkspace
+          title={activeTool.meta.name}
+          icon={activeTool.meta.icon}
+          onBack={() => setActiveToolId(null)}
+        >
+          <activeTool.component />
+        </ToolWorkspace>
+      </div>
     );
   }
 

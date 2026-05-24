@@ -43,15 +43,15 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
 
   return (
     <div>
-      <div className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/50 transition-colors border-b border-border group">
-        <div className="cursor-grab text-muted-foreground shrink-0 drag-handle">
+      <div className="flex items-center gap-3 px-4 py-3 hover:bg-warm-page transition-colors border-b border-warm-border bg-warm-card group">
+        <div className="cursor-grab text-warm-muted shrink-0 drag-handle">
           <GripVertical className="w-4 h-4" />
         </div>
 
         <Checkbox.Root
           checked={todo.completed === 1}
           onCheckedChange={toggleComplete}
-          className="w-5 h-5 rounded-full border-[1.5px] border-slate-400 hover:border-primary flex items-center justify-center data-[state=checked]:bg-primary data-[state=checked]:border-primary shrink-0 transition-colors"
+          className="w-5 h-5 rounded-full border-[1.5px] border-warm-border hover:border-warm-primary flex items-center justify-center data-[state=checked]:bg-warm-primary data-[state=checked]:border-warm-primary shrink-0 transition-colors"
         >
           <Checkbox.Indicator forceMount className="data-[state=unchecked]:hidden">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
@@ -61,11 +61,11 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
         </Checkbox.Root>
 
         <button onClick={() => setExpanded(!expanded)} className="p-1 hover:bg-accent rounded shrink-0">
-          {expanded ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+          {expanded ? <ChevronDown className="w-4 h-4 text-warm-muted" /> : <ChevronRight className="w-4 h-4 text-warm-muted" />}
         </button>
 
         <button onClick={() => setExpanded(!expanded)} className="flex-1 text-left">
-          <span className={`text-sm ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
+          <span className={`text-sm ${todo.completed ? 'line-through text-warm-muted' : ''}`}>
             {todo.title}
           </span>
         </button>
@@ -79,28 +79,28 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
         <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${priorityColors[todo.priority] || 'bg-slate-400'}`} title={todo.priority} />
 
         {todo.due_date && (
-          <span className="text-xs text-muted-foreground min-w-[60px] text-right shrink-0">
+          <span className="text-xs text-warm-muted min-w-[60px] text-right shrink-0">
             {todo.due_date.slice(5)}
           </span>
         )}
 
         {hasChildren && (
-          <span className="text-xs text-muted-foreground shrink-0">{todo.children!.length}子项</span>
+          <span className="text-xs text-warm-muted shrink-0">{todo.children!.length}子项</span>
         )}
 
-        <button onClick={onAddSub} className="shrink-0 opacity-0 group-hover:opacity-100 p-1 hover:bg-accent rounded text-muted-foreground" title="添加子待办">
+        <button onClick={onAddSub} className="shrink-0 opacity-0 group-hover:opacity-100 p-1 hover:bg-warm-secondary rounded text-warm-muted" title="添加子待办">
           <Plus className="w-3.5 h-3.5" />
         </button>
-        <button onClick={onEdit} className="shrink-0 opacity-0 group-hover:opacity-100 p-1 hover:bg-accent rounded text-muted-foreground" title="编辑">
+        <button onClick={onEdit} className="shrink-0 opacity-0 group-hover:opacity-100 p-1 hover:bg-warm-secondary rounded text-warm-muted" title="编辑">
           <Pencil className="w-3.5 h-3.5" />
         </button>
-        <button onClick={handleDelete} className="shrink-0 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded text-muted-foreground hover:text-red-500" title="删除">
+        <button onClick={handleDelete} className="shrink-0 opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded text-warm-muted hover:text-red-400" title="删除">
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {expanded && (
-        <div className="ml-14 border-l-2 border-primary/20 bg-secondary/20 px-4 py-2 space-y-1">
+        <div className="ml-14 border-l-2 border-warm-primary/20 bg-warm-secondary px-4 py-2 space-y-1">
           {todo.description && (
             <p className="text-sm text-muted-foreground py-1">{todo.description}</p>
           )}
@@ -109,7 +109,7 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
               <Checkbox.Root
                 checked={child.completed === 1}
                 onCheckedChange={() => toggleSubComplete(child.id, child.completed)}
-                className="w-4 h-4 rounded-full border-[1.5px] border-slate-400 hover:border-primary flex items-center justify-center data-[state=checked]:bg-primary data-[state=checked]:border-primary shrink-0 transition-colors"
+                className="w-4 h-4 rounded-full border-[1.5px] border-warm-border hover:border-warm-primary flex items-center justify-center data-[state=checked]:bg-warm-primary data-[state=checked]:border-warm-primary shrink-0 transition-colors"
               >
                 <Checkbox.Indicator forceMount className="data-[state=unchecked]:hidden">
                   <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
@@ -123,7 +123,7 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
               {child.priority && <div className={`w-2 h-2 rounded-full ${priorityColors[child.priority] || 'bg-slate-400'}`} />}
             </div>
           ))}
-          <button onClick={onAddSub} className="text-xs text-primary hover:underline flex items-center gap-1 py-1">
+          <button onClick={onAddSub} className="text-xs text-warm-primary hover:underline flex items-center gap-1 py-1">
             <Plus className="w-3 h-3" />添加子待办
           </button>
         </div>

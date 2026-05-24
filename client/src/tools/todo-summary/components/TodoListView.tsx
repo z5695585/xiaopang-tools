@@ -40,15 +40,15 @@ export function TodoListView() {
   return (
     <div className="flex flex-col h-full">
       {/* 顶部操作栏 */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-border">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-warm-border">
         {/* 全部/待完成/已完成 */}
-        <div className="flex bg-secondary rounded-lg p-0.5">
+        <div className="flex bg-warm-secondary rounded-lg p-0.5">
           {tabs.map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                tab === t.key ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                tab === t.key ? 'bg-warm-primary text-white shadow-sm' : 'text-warm-muted hover:text-warm-text'
               }`}
             >
               {t.label}
@@ -57,8 +57,8 @@ export function TodoListView() {
         </div>
 
         {/* 搜索 */}
-        <div className="flex items-center gap-2 flex-1 bg-secondary rounded-lg px-3 py-2">
-          <Search className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 flex-1 bg-white border border-warm-border rounded-lg px-3 py-2">
+          <Search className="w-4 h-4 text-warm-muted" />
           <input
             type="text"
             placeholder="搜索待办..."
@@ -72,7 +72,7 @@ export function TodoListView() {
         <select
           value={tagFilter}
           onChange={e => setTagFilter(e.target.value)}
-          className="px-3 py-2 border border-border rounded-lg text-sm bg-background"
+          className="px-3 py-2 border border-warm-border rounded-lg text-sm bg-background"
         >
           <option value="">所有标签</option>
           {allTags.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -80,7 +80,7 @@ export function TodoListView() {
 
         <button
           onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm flex items-center gap-2 transition-colors shrink-0"
+          className="px-4 py-2 bg-warm-primary hover:bg-warm-primary-hover text-white rounded-lg text-sm flex items-center gap-2 transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           添加待办
@@ -89,7 +89,7 @@ export function TodoListView() {
 
       {/* 待办列表 */}
       {filtered.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">
+        <div className="flex-1 flex items-center justify-center text-warm-muted text-sm">
           {tab === 'completed' ? '暂无已完成事项' : '暂无待办事项'}
         </div>
       ) : (

@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-const DB_PATH = path.join(__dirname, '..', 'xiaopang.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'xiaopang.db');
 
 let db: Database.Database;
 

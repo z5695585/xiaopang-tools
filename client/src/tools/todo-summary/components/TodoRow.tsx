@@ -103,7 +103,9 @@ export function TodoRow({ todo, index, onEdit, onEditSub, onAddSub, onDragStart,
         )}
 
         {hasChildren && (
-          <span className="text-xs text-warm-muted shrink-0">{todo.children!.length}子项</span>
+          <span className="text-xs text-warm-muted shrink-0">
+            {todo.children!.filter(c => c.completed === 1).length}/{todo.children!.length} 子项
+          </span>
         )}
 
         <button onClick={onAddSub} className="shrink-0 opacity-0 group-hover:opacity-100 p-1 hover:bg-warm-secondary rounded text-warm-muted" title="添加子待办">

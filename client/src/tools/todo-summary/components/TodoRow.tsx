@@ -139,6 +139,9 @@ export function TodoRow({ todo, index, onEdit, onEditSub, onAddSub, onDragStart,
                 {child.title}
               </span>
               {child.priority && <div className={`w-2 h-2 rounded-full ${priorityColors[child.priority] || 'bg-slate-400'}`} />}
+              {child.due_date && (
+                <span className="text-xs text-warm-muted min-w-[50px] text-right shrink-0">{child.due_date.slice(5)}</span>
+              )}
               <button onClick={() => onEditSub(child)} className="shrink-0 p-0.5 hover:bg-warm-border rounded text-warm-muted" title="编辑子任务">
                 <Pencil className="w-3 h-3" />
               </button>

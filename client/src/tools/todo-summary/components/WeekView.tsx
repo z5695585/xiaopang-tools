@@ -18,8 +18,8 @@ export function WeekView() {
   const weekLabel = `${format(weekStart, 'yyyy年M月d日')} - ${format(addDays(weekStart, 6), 'M月d日')}`;
 
   useEffect(() => {
-    const from = weekStart.toISOString();
-    const to = addDays(weekStart, 6).toISOString();
+    const from = format(weekStart, 'yyyy-MM-dd');
+    const to = format(addDays(weekStart, 6), 'yyyy-MM-dd');
     request(`/api/todo-summary/summary/data?period=week&from=${from}&to=${to}`);
   }, [refreshKey, currentDate]);
 

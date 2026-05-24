@@ -5,12 +5,12 @@ import { getDb } from '../db';
 const router = Router();
 
 function getPeriodDates(period: string, from?: string, to?: string): { start: string; end: string; label: string } {
-  // 如果前端传了日期范围，直接使用
+  // 如果前端传了日期范围，转为可比较的 datetime 字符串
   if (from && to) {
     return {
-      start: new Date(from).toISOString(),
-      end: new Date(to).toISOString(),
-      label: `${from.slice(0, 10)} ~ ${to.slice(0, 10)}`,
+      start: `${from} 00:00:00`,
+      end: `${to} 23:59:59`,
+      label: `${from} ~ ${to}`,
     };
   }
 

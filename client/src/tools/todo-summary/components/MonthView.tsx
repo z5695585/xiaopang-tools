@@ -19,8 +19,8 @@ export function MonthView() {
   const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   useEffect(() => {
-    const from = monthStart.toISOString();
-    const to = monthEnd.toISOString();
+    const from = format(monthStart, 'yyyy-MM-dd');
+    const to = format(monthEnd, 'yyyy-MM-dd');
     request(`/api/todo-summary/summary/data?period=month&from=${from}&to=${to}`);
   }, [refreshKey, currentDate]);
 

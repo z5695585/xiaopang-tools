@@ -15,28 +15,28 @@ export const todoSummaryMeta: ToolPackageMeta = {
 function MainPage() {
   return (
     <Tabs.Root defaultValue="todo" className="flex flex-col h-full">
-      <Tabs.List className="flex border-b border-border shrink-0">
+      <Tabs.List className="flex border-b border-warm-border shrink-0">
         <Tabs.Trigger
           value="todo"
-          className="px-4 py-3 text-sm text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:-mb-px transition-colors"
+          className="px-4 py-3 text-sm text-warm-muted data-[state=active]:text-warm-primary data-[state=active]:border-b-2 data-[state=active]:border-warm-primary data-[state=active]:-mb-px transition-colors"
         >
           待办
         </Tabs.Trigger>
         <Tabs.Trigger
           value="week"
-          className="px-4 py-3 text-sm text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:-mb-px transition-colors"
+          className="px-4 py-3 text-sm text-warm-muted data-[state=active]:text-warm-primary data-[state=active]:border-b-2 data-[state=active]:border-warm-primary data-[state=active]:-mb-px transition-colors"
         >
           周视图
         </Tabs.Trigger>
         <Tabs.Trigger
           value="month"
-          className="px-4 py-3 text-sm text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:-mb-px transition-colors"
+          className="px-4 py-3 text-sm text-warm-muted data-[state=active]:text-warm-primary data-[state=active]:border-b-2 data-[state=active]:border-warm-primary data-[state=active]:-mb-px transition-colors"
         >
           月视图
         </Tabs.Trigger>
         <Tabs.Trigger
           value="templates"
-          className="px-4 py-3 text-sm text-muted-foreground data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:-mb-px transition-colors"
+          className="px-4 py-3 text-sm text-warm-muted data-[state=active]:text-warm-primary data-[state=active]:border-b-2 data-[state=active]:border-warm-primary data-[state=active]:-mb-px transition-colors"
         >
           报告模板
         </Tabs.Trigger>

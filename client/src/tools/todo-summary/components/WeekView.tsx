@@ -29,19 +29,19 @@ export function WeekView() {
 
   return (
     <div className="flex flex-col h-full relative">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border">
         <div className="flex items-center gap-4">
-          <button onClick={prevWeek} className="p-2 hover:bg-secondary rounded-lg transition-colors">
+          <button onClick={prevWeek} className="p-2 hover:bg-warm-secondary rounded-lg transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <span className="font-medium text-sm">{weekLabel}</span>
-          <button onClick={nextWeek} className="p-2 hover:bg-secondary rounded-lg transition-colors">
+          <button onClick={nextWeek} className="p-2 hover:bg-warm-secondary rounded-lg transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
         <button
           onClick={() => setShowAI(true)}
-          className="px-4 py-2 border-2 border-primary text-primary hover:bg-accent rounded-lg text-sm flex items-center gap-2 transition-colors"
+          className="px-4 py-2 border-2 border-warm-primary text-warm-primary hover:bg-warm-secondary rounded-lg text-sm flex items-center gap-2 transition-colors"
         >
           <Sparkles className="w-4 h-4" />
           AI 总结
@@ -58,17 +58,17 @@ export function WeekView() {
             return (
               <div
                 key={i}
-                className={`rounded-lg border border-border p-3 ${isToday ? 'bg-accent' : 'bg-background'}`}
+                className={`rounded-lg border border-warm-border p-3 ${isToday ? 'bg-warm-secondary' : 'bg-white'}`}
               >
                 <div className="text-center mb-3">
                   <div className="text-xs text-muted-foreground mb-1">{format(day, 'EEE', { locale: zhCN })}</div>
-                  <div className={`text-lg font-medium ${isToday ? 'text-primary' : ''}`}>{format(day, 'd')}</div>
+                  <div className={`text-lg font-medium ${isToday ? 'text-warm-primary' : ''}`}>{format(day, 'd')}</div>
                 </div>
                 <div className="space-y-2">
                   {summary?.groups?.flatMap(g =>
                     g.completed.map(c => ({ ...c, tag: g.tag }))
                   ).filter((t: any) => t.completedAt?.startsWith(dateKey)).map((t: any, j: number) => (
-                    <div key={j} className="text-xs p-2 rounded bg-card border border-border line-through text-muted-foreground">
+                    <div key={j} className="text-xs p-2 rounded bg-warm-card border border-warm-border line-through text-muted-foreground">
                       {t.title}
                     </div>
                   ))}
@@ -79,14 +79,14 @@ export function WeekView() {
         </div>
 
         {/* 统计栏 */}
-        <div className="mt-6 p-4 bg-secondary rounded-lg">
+        <div className="mt-6 p-4 bg-warm-secondary rounded-lg">
           <div className="flex items-center gap-6 text-sm">
             <span>本周任务: <span className="font-medium">{allTotal}</span></span>
             <span>已完成: <span className="font-medium">{allCompleted}</span></span>
             <span>完成率: <span className="font-medium">{completionRate}%</span></span>
             <div className="flex-1 max-w-md">
               <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary transition-all" style={{ width: `${completionRate}%` }} />
+                <div className="h-full bg-warm-primary transition-all" style={{ width: `${completionRate}%` }} />
               </div>
             </div>
           </div>

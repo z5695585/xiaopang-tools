@@ -30,19 +30,19 @@ export function MonthView() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-warm-border">
         <div className="flex items-center gap-4">
-          <button onClick={prevMonth} className="p-2 hover:bg-secondary rounded-lg transition-colors">
+          <button onClick={prevMonth} className="p-2 hover:bg-warm-secondary rounded-lg transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <span className="font-medium text-sm">{format(currentDate, 'yyyy年M月')}</span>
-          <button onClick={nextMonth} className="p-2 hover:bg-secondary rounded-lg transition-colors">
+          <button onClick={nextMonth} className="p-2 hover:bg-warm-secondary rounded-lg transition-colors">
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
         <button
           onClick={() => setShowAI(true)}
-          className="px-4 py-2 border-2 border-primary text-primary hover:bg-accent rounded-lg text-sm flex items-center gap-2 transition-colors"
+          className="px-4 py-2 border-2 border-warm-primary text-warm-primary hover:bg-warm-secondary rounded-lg text-sm flex items-center gap-2 transition-colors"
         >
           <Sparkles className="w-4 h-4" />
           AI 总结
@@ -64,12 +64,12 @@ export function MonthView() {
             return (
               <div
                 key={i}
-                className={`min-h-[90px] border border-border rounded-lg p-2 ${
-                  isCurrentMonth ? 'bg-background' : 'bg-muted/30'
-                } ${isToday ? 'ring-2 ring-primary' : ''}`}
+                className={`min-h-[90px] border border-warm-border rounded-lg p-2 ${
+                  isCurrentMonth ? 'bg-white' : 'bg-warm-secondary/30'
+                } ${isToday ? 'ring-2 ring-warm-primary' : ''}`}
               >
                 <div className={`text-sm font-medium mb-1 ${
-                  isToday ? 'bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center' :
+                  isToday ? 'bg-warm-primary text-white w-6 h-6 rounded-full flex items-center justify-center' :
                   isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
                 }`}>
                   {format(day, 'd')}
@@ -83,14 +83,14 @@ export function MonthView() {
         </div>
 
         {/* 统计栏 */}
-        <div className="mt-6 p-4 bg-secondary rounded-lg">
+        <div className="mt-6 p-4 bg-warm-secondary rounded-lg">
           <div className="flex items-center gap-6 text-sm">
             <span>本月任务: <span className="font-medium">{allTotal}</span></span>
             <span>已完成: <span className="font-medium">{allCompleted}</span></span>
             <span>完成率: <span className="font-medium">{completionRate}%</span></span>
             <div className="flex-1 max-w-md">
               <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary transition-all" style={{ width: `${completionRate}%` }} />
+                <div className="h-full bg-warm-primary transition-all" style={{ width: `${completionRate}%` }} />
               </div>
             </div>
           </div>

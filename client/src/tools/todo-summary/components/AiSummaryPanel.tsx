@@ -46,7 +46,7 @@ export function AiSummaryPanel({ period, onClose }: Props) {
         {loading && <p className="text-center text-warm-muted py-8">生成中...</p>}
 
         {content && (
-          <div className="whitespace-pre-wrap font-sans text-foreground leading-relaxed">{content}</div>
+          <div className="whitespace-pre-wrap font-sans text-warm-text leading-relaxed">{content}</div>
         )}
       </div>
 

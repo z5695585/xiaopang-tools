@@ -72,7 +72,7 @@ export function TodoListView() {
         <select
           value={tagFilter}
           onChange={e => setTagFilter(e.target.value)}
-          className="px-3 py-2 border border-warm-border rounded-lg text-sm bg-background"
+          className="px-3 py-2 border border-warm-border rounded-lg text-sm bg-white"
         >
           <option value="">所有标签</option>
           {allTags.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}

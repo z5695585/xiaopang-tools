@@ -62,6 +62,8 @@ export interface SummaryItem {
   subCount: number;
   completedAt?: string;
   isManual?: boolean;
+  isSub?: boolean;
+  parentTitle?: string;
 }
 
 export interface SummaryData {

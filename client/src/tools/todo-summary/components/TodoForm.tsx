@@ -18,7 +18,6 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
   const [description, setDescription] = useState(todo?.description || '');
   const [priority, setPriority] = useState<string>(todo?.priority || '中');
   const [dueDate, setDueDate] = useState(todo?.due_date?.slice(0, 10) || '');
-  const [plannedDate, setPlannedDate] = useState(todo?.planned_date?.slice(0, 10) || '');
   const [selectedTags, setSelectedTags] = useState<number[]>(todo?.tags?.map(t => t.id) || []);
   const [isRisk, setIsRisk] = useState(!!todo?.is_risk);
   const [isFocus, setIsFocus] = useState(!!todo?.is_focus);
@@ -34,7 +33,6 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
       description,
       priority,
       due_date: dueDate || null,
-      planned_date: plannedDate || null,
       tag_ids: selectedTags,
       is_risk: isRisk ? 1 : 0,
       is_focus: isFocus ? 1 : 0,
@@ -84,10 +82,6 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
           </div>
         </div>
 
-        <div className="flex-1">
-          <label className="text-sm font-medium text-warm-text">计划完成日期</label>
-          <input type="date" value={plannedDate} onChange={e => setPlannedDate(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1" />
-        </div>
 
         <div>
           <label className="text-sm font-medium text-warm-text">标签</label>

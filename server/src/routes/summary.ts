@@ -57,14 +57,28 @@ router.get('/data', (req: Request, res: Response<ApiResponse<SummaryData>>) => {
   const groups: SummaryGroup[] = [];
 
   for (const tag of tags) {
+    // 已完成主任务
     const completed = db.prepare(`
-      SELECT title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id AND c.completed = 1) as subCount,
-             completed_at as completedAt
+      SELECT t.id, t.title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id AND c.completed = 1) as subCount,
+             t.completed_at as completedAt, 0 as isSub, NULL as parentTitle
       FROM todos t
       WHERE t.deleted_at IS NULL AND t.completed = 1 AND t.parent_id IS NULL
         AND t.completed_at >= ? AND t.completed_at <= ?
         AND EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id AND tt.tag_id = ?)
     `).all(start, end, tag.id) as SummaryItem[];
+
+    // 已完成的子任务（标记 isSub=1，附父任务标题）
+    const completedSubs = db.prepare(`
+      SELECT s.id, s.title, 0 as subCount, s.completed_at as completedAt,
+             1 as isSub, p.title as parentTitle
+      FROM todos s
+      JOIN todos p ON s.parent_id = p.id
+      WHERE s.deleted_at IS NULL AND s.completed = 1 AND s.parent_id IS NOT NULL
+        AND s.completed_at >= ? AND s.completed_at <= ?
+        AND EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = p.id AND tt.tag_id = ?)
+    `).all(start, end, tag.id) as SummaryItem[];
+
+    const allCompleted = [...completed, ...completedSubs];
 
     const pending = db.prepare(`
       SELECT title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id) as subCount
@@ -87,10 +101,10 @@ router.get('/data', (req: Request, res: Response<ApiResponse<SummaryData>>) => {
         AND EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id AND tt.tag_id = ?)
     `).all(tag.id) as SummaryItem[];
 
-    if (completed.length || pending.length || risks.length || focus.length) {
+    if (allCompleted.length || pending.length || risks.length || focus.length) {
       groups.push({
         tag: { id: tag.id, name: tag.name, color: tag.color },
-        completed,
+        completed: allCompleted,
         pending,
         risks,
         focus,
@@ -100,13 +114,25 @@ router.get('/data', (req: Request, res: Response<ApiResponse<SummaryData>>) => {
 
   // 未分类（无标签）的条目
   const untaggedCompleted = db.prepare(`
-    SELECT title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id AND c.completed = 1) as subCount,
-           completed_at as completedAt
+    SELECT t.id, t.title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id AND c.completed = 1) as subCount,
+           t.completed_at as completedAt, 0 as isSub, NULL as parentTitle
     FROM todos t
     WHERE t.deleted_at IS NULL AND t.completed = 1 AND t.parent_id IS NULL
       AND t.completed_at >= ? AND t.completed_at <= ?
       AND NOT EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id)
   `).all(start, end) as SummaryItem[];
+
+  const untaggedCompletedSubs = db.prepare(`
+    SELECT s.id, s.title, 0 as subCount, s.completed_at as completedAt,
+           1 as isSub, p.title as parentTitle
+    FROM todos s
+    JOIN todos p ON s.parent_id = p.id
+    WHERE s.deleted_at IS NULL AND s.completed = 1 AND s.parent_id IS NOT NULL
+      AND s.completed_at >= ? AND s.completed_at <= ?
+      AND NOT EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = p.id)
+  `).all(start, end) as SummaryItem[];
+
+  const allUntaggedCompleted = [...untaggedCompleted, ...untaggedCompletedSubs];
 
   const untaggedPending = db.prepare(`
     SELECT title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id) as subCount
@@ -129,10 +155,10 @@ router.get('/data', (req: Request, res: Response<ApiResponse<SummaryData>>) => {
       AND NOT EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id)
   `).all() as SummaryItem[];
 
-  if (untaggedCompleted.length || untaggedPending.length || untaggedRisks.length || untaggedFocus.length) {
+  if (allUntaggedCompleted.length || untaggedPending.length || untaggedRisks.length || untaggedFocus.length) {
     groups.push({
       tag: { id: 0, name: '未分类', color: '#9CA3AF' },
-      completed: untaggedCompleted,
+      completed: allUntaggedCompleted,
       pending: untaggedPending,
       risks: untaggedRisks,
       focus: untaggedFocus,

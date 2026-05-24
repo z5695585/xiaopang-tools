@@ -7,6 +7,7 @@ import { TodoRow } from './TodoRow';
 interface Props {
   todos: Todo[];
   onEdit: (todo: Todo) => void;
+  onEditSub: (todo: Todo) => void;
   onAddSub: (todo: Todo) => void;
 }
 
@@ -23,7 +24,7 @@ function digest(todos: Todo[]) {
   })));
 }
 
-export function DraggableTodoList({ todos, onEdit, onAddSub }: Props) {
+export function DraggableTodoList({ todos, onEdit, onEditSub, onAddSub }: Props) {
   const [items, setItems] = useState<Todo[]>([]);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
@@ -83,6 +84,7 @@ export function DraggableTodoList({ todos, onEdit, onAddSub }: Props) {
             todo={todo}
             index={index}
             onEdit={() => onEdit(todo)}
+            onEditSub={onEditSub}
             onAddSub={() => onAddSub(todo)}
             onDragStart={handleDragStart}
             onDragEnter={handleDragEnter}

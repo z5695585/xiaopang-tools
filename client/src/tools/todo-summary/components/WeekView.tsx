@@ -74,10 +74,12 @@ export function WeekView() {
                   ).filter((t: any) => t.completedAt?.startsWith(dateKey)).map((t: any, j: number) => (
                     <div
                       key={j}
-                      className="text-xs p-2 rounded bg-warm-card border border-warm-border line-through text-warm-muted cursor-default"
-                      title={`${t.title}\n标签: ${t.tag.name}\n${t.subCount ? `含 ${t.subCount} 子项完成\n` : ''}完成时间: ${t.completedAt?.slice(0, 16).replace('T', ' ') || '未知'}`}
+                      className={`text-xs p-2 rounded border line-through cursor-default ${
+                        t.isSub ? 'bg-warm-secondary/50 border-warm-border/50 text-warm-muted/70' : 'bg-warm-card border-warm-border text-warm-muted'
+                      }`}
+                      title={`${t.isSub ? '子任务' : '主任务'}：${t.title}\n${t.isSub && t.parentTitle ? `所属: ${t.parentTitle}\n` : ''}标签: ${t.tag.name}\n${t.subCount ? `含 ${t.subCount} 子项完成\n` : ''}完成时间: ${t.completedAt?.slice(0, 16).replace('T', ' ') || '未知'}`}
                     >
-                      {t.title}
+                      {t.isSub ? `↳ ${t.title}` : t.title}
                     </div>
                   ))}
                 </div>

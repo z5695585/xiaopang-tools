@@ -11,13 +11,14 @@ interface Props {
   todo: Todo;
   index: number;
   onEdit: () => void;
+  onEditSub: (todo: Todo) => void;
   onAddSub: () => void;
   onDragStart: (index: number) => void;
   onDragEnter: (index: number) => void;
   onDragEnd: () => void;
 }
 
-export function TodoRow({ todo, index, onEdit, onAddSub, onDragStart, onDragEnter, onDragEnd }: Props) {
+export function TodoRow({ todo, index, onEdit, onEditSub, onAddSub, onDragStart, onDragEnter, onDragEnd }: Props) {
   const { refresh } = useTodoContext();
   const { request } = useApi();
   const [expanded, setExpanded] = useState(false);
@@ -42,6 +43,12 @@ export function TodoRow({ todo, index, onEdit, onAddSub, onDragStart, onDragEnte
   const handleDelete = async () => {
     if (!confirm('确定删除此待办？')) return;
     await request(`/api/todo-summary/todos/${todo.id}`, { method: 'DELETE' });
+    refresh();
+  };
+
+  const handleDeleteSub = async (childId: number) => {
+    if (!confirm('确定删除此子任务？')) return;
+    await request(`/api/todo-summary/todos/${childId}`, { method: 'DELETE' });
     refresh();
   };
 
@@ -128,10 +135,16 @@ export function TodoRow({ todo, index, onEdit, onAddSub, onDragStart, onDragEnte
                   </svg>
                 </Checkbox.Indicator>
               </Checkbox.Root>
-              <span className={`text-sm ${child.completed ? 'line-through text-warm-muted' : ''}`}>
+              <span className={`text-sm flex-1 ${child.completed ? 'line-through text-warm-muted' : ''}`}>
                 {child.title}
               </span>
               {child.priority && <div className={`w-2 h-2 rounded-full ${priorityColors[child.priority] || 'bg-slate-400'}`} />}
+              <button onClick={() => onEditSub(child)} className="shrink-0 p-0.5 hover:bg-warm-border rounded text-warm-muted" title="编辑子任务">
+                <Pencil className="w-3 h-3" />
+              </button>
+              <button onClick={() => handleDeleteSub(child.id)} className="shrink-0 p-0.5 hover:bg-red-100 rounded text-warm-muted hover:text-red-400" title="删除子任务">
+                <Trash2 className="w-3 h-3" />
+              </button>
             </div>
           ))}
           <button onClick={onAddSub} className="text-xs text-warm-primary hover:underline flex items-center gap-1 py-1">

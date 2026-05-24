@@ -91,6 +91,7 @@ export function TodoListView() {
         <DraggableTodoList
           todos={filtered}
           onEdit={setEditTodo}
+          onEditSub={setEditTodo}
           onAddSub={setAddSubFor}
         />
       )}

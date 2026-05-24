@@ -53,37 +53,37 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+      <form onSubmit={handleSubmit} className="bg-warm-card rounded-warm-card shadow-warm-hover w-full max-w-lg p-6 space-y-4 max-h-[80vh] overflow-y-auto">
         <h3 className="font-semibold text-lg">{todo ? '编辑待办' : parentId ? '添加子待办' : '新建待办'}</h3>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">标题</label>
-          <input value={title} onChange={e => setTitle(e.target.value)} className="w-full px-3 py-2 border rounded-md text-sm mt-1" placeholder="待办标题" required />
+          <label className="text-sm font-medium text-warm-text">标题</label>
+          <input value={title} onChange={e => setTitle(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1" placeholder="待办标题" required />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">描述</label>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full px-3 py-2 border rounded-md text-sm mt-1" rows={3} placeholder="详细描述（可选）" />
+          <label className="text-sm font-medium text-warm-text">描述</label>
+          <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1" rows={3} placeholder="详细描述（可选）" />
         </div>
 
         <div className="flex gap-4">
           <div className="flex-1">
-            <label className="text-sm font-medium text-slate-700">优先级</label>
-            <select value={priority} onChange={e => setPriority(e.target.value)} className="w-full px-3 py-2 border rounded-md text-sm mt-1">
+            <label className="text-sm font-medium text-warm-text">优先级</label>
+            <select value={priority} onChange={e => setPriority(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1">
               <option value="高">高</option>
               <option value="中">中</option>
               <option value="低">低</option>
             </select>
           </div>
           <div className="flex-1">
-            <label className="text-sm font-medium text-slate-700">截止日期</label>
-            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border rounded-md text-sm mt-1" />
+            <label className="text-sm font-medium text-warm-text">截止日期</label>
+            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1" />
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">标签</label>
+          <label className="text-sm font-medium text-warm-text">标签</label>
           <div className="flex gap-1.5 mt-1 flex-wrap">
             {(tags || []).map(tag => (
               <button
@@ -91,7 +91,7 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
                 key={tag.id}
                 onClick={() => toggleTag(tag.id)}
                 className={`text-xs px-2.5 py-1 rounded-full transition-colors ${
-                  selectedTags.includes(tag.id) ? 'text-white' : 'text-slate-600 bg-slate-100 hover:bg-slate-200'
+                  selectedTags.includes(tag.id) ? 'text-white' : 'text-warm-text-secondary bg-warm-secondary hover:bg-warm-border'
                 }`}
                 style={selectedTags.includes(tag.id) ? { background: tag.color } : undefined}
               >
@@ -111,8 +111,8 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
         </div>
 
         <div className="flex gap-2 justify-end pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-md bg-secondary hover:bg-accent">取消</button>
-          <button type="submit" className="px-4 py-2 text-sm text-primary-foreground bg-primary rounded-md hover:bg-primary/90">{todo ? '保存' : '创建'}</button>
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-md bg-warm-secondary hover:bg-warm-border text-warm-text">取消</button>
+          <button type="submit" className="px-4 py-2 text-sm text-white bg-warm-primary rounded-md hover:bg-warm-primary-hover">{todo ? '保存' : '创建'}</button>
         </div>
       </form>
     </div>

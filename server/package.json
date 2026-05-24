@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "tsx src/index.ts"
+"start": "tsx src/index.ts"
   },
   "dependencies": {
     "better-sqlite3": "^11.7.0",

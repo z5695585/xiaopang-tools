@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import path from 'path';
 import type { ApiResponse } from '@shared/types';
 
 export function errorHandler(
@@ -15,8 +16,15 @@ export function errorHandler(
 }
 
 export function notFoundHandler(
-  _req: Request,
-  res: Response<ApiResponse<never>>
+  req: Request,
+  res: Response<ApiResponse<never>>,
+  _next: NextFunction
 ): void {
-  res.status(404).json({ success: false, error: 'Not found' });
+  // API 路由返回 404 JSON
+  if (req.path.startsWith('/api/')) {
+    res.status(404).json({ success: false, error: 'Not found' });
+    return;
+  }
+  // 非 API 请求返回 index.html（SPA 回退）
+  res.sendFile('index.html', { root: path.join(__dirname, '..', 'public') });
 }

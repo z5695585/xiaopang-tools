@@ -110,6 +110,16 @@ router.put('/:id', (req: Request, res: Response<ApiResponse<Todo>>) => {
 
   db.prepare(`UPDATE todos SET ${sets.join(', ')} WHERE id = ?`).run(...params);
 
+  // 级联完成/取消完成子任务
+  if (input.completed !== undefined) {
+    db.prepare(`
+      UPDATE todos SET completed = ?,
+        completed_at = CASE WHEN ? = 1 THEN datetime('now') ELSE NULL END,
+        updated_at = datetime('now')
+      WHERE parent_id = ? AND deleted_at IS NULL
+    `).run(input.completed, input.completed, Number(req.params.id));
+  }
+
   if (input.tag_ids !== undefined) {
     db.prepare('DELETE FROM todo_tags WHERE todo_id = ?').run(Number(req.params.id));
     const insert = db.prepare('INSERT INTO todo_tags (todo_id, tag_id) VALUES (?, ?)');

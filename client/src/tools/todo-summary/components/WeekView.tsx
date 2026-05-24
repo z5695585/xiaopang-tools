@@ -4,12 +4,14 @@ import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { zhCN } from 'date-fns/locale/zh-CN';
 import type { SummaryData } from '@shared/types';
 import { useApi } from '@/hooks/useApi';
+import { useTodoContext } from '../context';
 import { AiSummaryPanel } from './AiSummaryPanel';
 
 export function WeekView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAI, setShowAI] = useState(false);
   const { data: summary, request } = useApi<SummaryData>();
+  const { refreshKey } = useTodoContext();
 
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -17,7 +19,7 @@ export function WeekView() {
 
   useEffect(() => {
     request(`/api/todo-summary/summary/data?period=week`);
-  }, []);
+  }, [refreshKey, currentDate]);
 
   const prevWeek = () => setCurrentDate(d => addDays(d, -7));
   const nextWeek = () => setCurrentDate(d => addDays(d, 7));

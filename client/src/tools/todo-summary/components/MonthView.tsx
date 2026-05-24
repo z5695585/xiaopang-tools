@@ -3,12 +3,14 @@ import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, startOfWeek, endOfWeek } from 'date-fns';
 import type { SummaryData } from '@shared/types';
 import { useApi } from '@/hooks/useApi';
+import { useTodoContext } from '../context';
 import { AiSummaryPanel } from './AiSummaryPanel';
 
 export function MonthView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAI, setShowAI] = useState(false);
   const { data: summary, request } = useApi<SummaryData>();
+  const { refreshKey } = useTodoContext();
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -18,7 +20,7 @@ export function MonthView() {
 
   useEffect(() => {
     request(`/api/todo-summary/summary/data?period=month`);
-  }, []);
+  }, [refreshKey, currentDate]);
 
   const prevMonth = () => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1));
   const nextMonth = () => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() + 1, 1));

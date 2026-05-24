@@ -78,7 +78,7 @@ router.get('/data', (req: Request, res: Response<ApiResponse<SummaryData>>) => {
         AND EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id AND tt.tag_id = ?)
     `).all(tag.id) as SummaryItem[];
 
-    if (completed.length || pending.length) {
+    if (completed.length || pending.length || risks.length || focus.length) {
       groups.push({
         tag: { id: tag.id, name: tag.name, color: tag.color },
         completed,
@@ -87,6 +87,47 @@ router.get('/data', (req: Request, res: Response<ApiResponse<SummaryData>>) => {
         focus,
       } as SummaryGroup);
     }
+  }
+
+  // 未分类（无标签）的条目
+  const untaggedCompleted = db.prepare(`
+    SELECT title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id AND c.completed = 1) as subCount,
+           completed_at as completedAt
+    FROM todos t
+    WHERE t.deleted_at IS NULL AND t.completed = 1 AND t.parent_id IS NULL
+      AND t.completed_at >= ? AND t.completed_at <= ?
+      AND NOT EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id)
+  `).all(start, end) as SummaryItem[];
+
+  const untaggedPending = db.prepare(`
+    SELECT title, (SELECT COUNT(*) FROM todos c WHERE c.parent_id = t.id) as subCount
+    FROM todos t
+    WHERE t.deleted_at IS NULL AND t.completed = 0 AND t.parent_id IS NULL
+      AND NOT EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id)
+  `).all() as SummaryItem[];
+
+  const untaggedRisks = db.prepare(`
+    SELECT title, 0 as subCount, 1 as isManual
+    FROM todos t
+    WHERE t.deleted_at IS NULL AND t.is_risk = 1 AND t.parent_id IS NULL
+      AND NOT EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id)
+  `).all() as SummaryItem[];
+
+  const untaggedFocus = db.prepare(`
+    SELECT title, 0 as subCount, 1 as isManual
+    FROM todos t
+    WHERE t.deleted_at IS NULL AND t.is_focus = 1 AND t.parent_id IS NULL
+      AND NOT EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id)
+  `).all() as SummaryItem[];
+
+  if (untaggedCompleted.length || untaggedPending.length || untaggedRisks.length || untaggedFocus.length) {
+    groups.push({
+      tag: { id: 0, name: '未分类', color: '#9CA3AF' },
+      completed: untaggedCompleted,
+      pending: untaggedPending,
+      risks: untaggedRisks,
+      focus: untaggedFocus,
+    } as SummaryGroup);
   }
 
   res.json({ success: true, data: { period: label, groups } });

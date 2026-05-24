@@ -5,6 +5,7 @@ import { useTodoContext } from '../context';
 import { useApi } from '@/hooks/useApi';
 import { TodoForm } from './TodoForm';
 import { DraggableTodoList } from './DraggableTodoList';
+import { TagManage } from './TagManage';
 
 type FilterTab = 'all' | 'active' | 'completed';
 
@@ -18,6 +19,7 @@ export function TodoListView() {
   const [showForm, setShowForm] = useState(false);
   const [editTodo, setEditTodo] = useState<Todo | null>(null);
   const [addSubFor, setAddSubFor] = useState<Todo | null>(null);
+  const [showTagManage, setShowTagManage] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -79,6 +81,13 @@ export function TodoListView() {
         </select>
 
         <button
+          onClick={() => setShowTagManage(true)}
+          className="px-3 py-2 border border-warm-border rounded-lg text-xs text-warm-text-secondary hover:bg-warm-secondary transition-colors shrink-0"
+        >
+          管理标签
+        </button>
+
+        <button
           onClick={() => setShowForm(true)}
           className="px-4 py-2 bg-warm-primary hover:bg-warm-primary-hover text-white rounded-lg text-sm flex items-center gap-2 transition-colors shrink-0"
         >
@@ -99,6 +108,9 @@ export function TodoListView() {
           onAddSub={setAddSubFor}
         />
       )}
+
+      {/* 标签管理 */}
+      {showTagManage && <TagManage onClose={() => { setShowTagManage(false); refresh(); }} />}
 
       {/* 新建/编辑/添加子待办 表单 */}
       {(showForm || editTodo || addSubFor) && (

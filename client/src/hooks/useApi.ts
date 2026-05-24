@@ -15,7 +15,7 @@ export function useApi<T = unknown>() {
   });
 
   const request = useCallback(async (url: string, options?: RequestInit): Promise<ApiResponse<T> | null> => {
-    setState({ data: null, loading: true, error: null });
+    setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const res = await fetch(url, {
         headers: { 'Content-Type': 'application/json' },

@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef } from 'react';
-import type { Todo, Tag } from '@shared/types';
+import { useState, useRef } from 'react';
+import type { Todo } from '@shared/types';
 import { useTodoContext } from '../context';
 import { useApi } from '@/hooks/useApi';
 import { TodoRow } from './TodoRow';
@@ -17,8 +17,8 @@ export function DraggableTodoList({ todos, onEdit, onAddSub }: Props) {
   const { refresh } = useTodoContext();
   const { request } = useApi();
 
-  // Sync when external todos change
-  if (todos !== items && JSON.stringify(todos.map(t => t.id)) !== JSON.stringify(items.map(t => t.id))) {
+  // Sync when external todos change (only if ID order differs)
+  if (todos.length > 0 && JSON.stringify(todos.map(t => t.id)) !== JSON.stringify(items.map(t => t.id))) {
     setItems(todos);
   }
 
@@ -44,7 +44,6 @@ export function DraggableTodoList({ todos, onEdit, onAddSub }: Props) {
     newItems.splice(to, 0, moved);
     setItems(newItems);
 
-    // 批量更新 sort_order
     const reorderData = newItems.map((item, idx) => ({ id: item.id, sort_order: idx }));
     await request('/api/todo-summary/todos/reorder', {
       method: 'PUT',
@@ -61,17 +60,16 @@ export function DraggableTodoList({ todos, onEdit, onAddSub }: Props) {
       {items.map((todo, index) => (
         <div
           key={todo.id}
-          draggable
-          onDragStart={() => handleDragStart(index)}
-          onDragEnter={() => handleDragEnter(index)}
-          onDragEnd={handleDragEnd}
-          onDragOver={e => e.preventDefault()}
           className={dragItem.current === index ? 'opacity-50' : ''}
         >
           <TodoRow
             todo={todo}
+            index={index}
             onEdit={() => onEdit(todo)}
             onAddSub={() => onAddSub(todo)}
+            onDragStart={handleDragStart}
+            onDragEnter={handleDragEnter}
+            onDragEnd={handleDragEnd}
           />
         </div>
       ))}

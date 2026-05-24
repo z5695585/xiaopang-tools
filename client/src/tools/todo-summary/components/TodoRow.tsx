@@ -9,11 +9,15 @@ const priorityColors: Record<string, string> = { '高': 'bg-[#DC2626]', '中': '
 
 interface Props {
   todo: Todo;
+  index: number;
   onEdit: () => void;
   onAddSub: () => void;
+  onDragStart: (index: number) => void;
+  onDragEnter: (index: number) => void;
+  onDragEnd: () => void;
 }
 
-export function TodoRow({ todo, onEdit, onAddSub }: Props) {
+export function TodoRow({ todo, index, onEdit, onAddSub, onDragStart, onDragEnter, onDragEnd }: Props) {
   const { refresh } = useTodoContext();
   const { request } = useApi();
   const [expanded, setExpanded] = useState(false);
@@ -44,14 +48,21 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
   return (
     <div>
       <div className="flex items-center gap-3 px-4 py-3 hover:bg-warm-page transition-colors border-b border-warm-border bg-warm-card group">
-        <div className="cursor-grab text-warm-muted shrink-0 drag-handle">
+        <div
+          draggable
+          onDragStart={() => onDragStart(index)}
+          onDragEnter={() => onDragEnter(index)}
+          onDragEnd={onDragEnd}
+          onDragOver={e => e.preventDefault()}
+          className="cursor-grab text-warm-muted shrink-0 drag-handle active:cursor-grabbing"
+        >
           <GripVertical className="w-4 h-4" />
         </div>
 
         <Checkbox.Root
           checked={todo.completed === 1}
           onCheckedChange={toggleComplete}
-          className="w-5 h-5 rounded-full border-[1.5px] border-warm-border hover:border-warm-primary flex items-center justify-center data-[state=checked]:bg-warm-primary data-[state=checked]:border-warm-primary shrink-0 transition-colors"
+          className="w-5 h-5 rounded-full border-[1.5px] border-warm-muted hover:border-warm-primary flex items-center justify-center data-[state=checked]:bg-warm-primary data-[state=checked]:border-warm-primary shrink-0 transition-colors"
         >
           <Checkbox.Indicator forceMount className="data-[state=unchecked]:hidden">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
@@ -109,7 +120,7 @@ export function TodoRow({ todo, onEdit, onAddSub }: Props) {
               <Checkbox.Root
                 checked={child.completed === 1}
                 onCheckedChange={() => toggleSubComplete(child.id, child.completed)}
-                className="w-4 h-4 rounded-full border-[1.5px] border-warm-border hover:border-warm-primary flex items-center justify-center data-[state=checked]:bg-warm-primary data-[state=checked]:border-warm-primary shrink-0 transition-colors"
+                className="w-4 h-4 rounded-full border-[1.5px] border-warm-muted hover:border-warm-primary flex items-center justify-center data-[state=checked]:bg-warm-primary data-[state=checked]:border-warm-primary shrink-0 transition-colors"
               >
                 <Checkbox.Indicator forceMount className="data-[state=unchecked]:hidden">
                   <svg width="9" height="9" viewBox="0 0 10 10" fill="none">

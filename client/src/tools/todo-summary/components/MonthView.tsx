@@ -19,7 +19,9 @@ export function MonthView() {
   const calendarDays = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   useEffect(() => {
-    request(`/api/todo-summary/summary/data?period=month`);
+    const from = monthStart.toISOString();
+    const to = monthEnd.toISOString();
+    request(`/api/todo-summary/summary/data?period=month&from=${from}&to=${to}`);
   }, [refreshKey, currentDate]);
 
   const prevMonth = () => setCurrentDate(d => new Date(d.getFullYear(), d.getMonth() - 1, 1));
@@ -62,6 +64,7 @@ export function MonthView() {
           {calendarDays.map((day, i) => {
             const isCurrentMonth = isSameMonth(day, currentDate);
             const isToday = isSameDay(day, new Date());
+            const dateKey = format(day, 'yyyy-MM-dd');
 
             return (
               <div
@@ -77,7 +80,26 @@ export function MonthView() {
                   {format(day, 'd')}
                 </div>
                 <div className="space-y-0.5 text-[10px] text-warm-muted">
-                  {isCurrentMonth && <div />}
+                  {summary?.groups?.flatMap(g =>
+                    g.completed.map(c => ({ ...c, tag: g.tag }))
+                  ).filter((t: any) => t.completedAt?.startsWith(dateKey)).slice(0, 3).map((t: any, j: number) => (
+                    <div
+                      key={j}
+                      className="px-1.5 py-0.5 rounded bg-warm-card border border-warm-border line-through truncate cursor-default"
+                      title={`${t.title}\n标签: ${t.tag.name}\n${t.subCount ? `含 ${t.subCount} 子项完成\n` : ''}完成时间: ${t.completedAt?.slice(0, 16).replace('T', ' ') || '未知'}`}
+                    >
+                      {t.title}
+                    </div>
+                  ))}
+                  {(() => {
+                    const dayItems = summary?.groups?.flatMap(g =>
+                      g.completed.map(c => ({ ...c, tag: g.tag }))
+                    ).filter((t: any) => t.completedAt?.startsWith(dateKey)) || [];
+                    if (dayItems.length > 3) {
+                      return <div className="text-[10px] text-warm-muted pl-1">+{dayItems.length - 3} 更多</div>;
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
             );

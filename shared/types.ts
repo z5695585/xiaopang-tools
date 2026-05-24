@@ -21,6 +21,7 @@ export interface Todo {
   description: string;
   priority: '高' | '中' | '低';
   due_date: string | null;
+  planned_date: string | null;
   completed: number;
   completed_at: string | null;
   sort_order: number;
@@ -74,6 +75,7 @@ export interface CreateTodoInput {
   description?: string;
   priority?: '高' | '中' | '低';
   due_date?: string | null;
+  planned_date?: string | null;
   tag_ids?: number[];
 }
 
@@ -82,6 +84,7 @@ export interface UpdateTodoInput {
   description?: string;
   priority?: '高' | '中' | '低';
   due_date?: string | null;
+  planned_date?: string | null;
   completed?: number;
   is_risk?: number;
   is_focus?: number;

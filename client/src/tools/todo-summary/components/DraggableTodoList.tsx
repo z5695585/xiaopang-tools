@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Todo } from '@shared/types';
 import { useTodoContext } from '../context';
 import { useApi } from '@/hooks/useApi';
@@ -10,17 +10,34 @@ interface Props {
   onAddSub: (todo: Todo) => void;
 }
 
+/** 生成数据摘要用于比较：只取会变化的关键字段 */
+function digest(todos: Todo[]) {
+  return JSON.stringify(todos.map(t => ({
+    id: t.id,
+    completed: t.completed,
+    title: t.title,
+    priority: t.priority,
+    childCount: t.children?.length ?? 0,
+    completedSubCount: t.children?.filter(c => c.completed === 1).length ?? 0,
+    tagIds: t.tags?.map(tg => tg.id).join(',') ?? '',
+  })));
+}
+
 export function DraggableTodoList({ todos, onEdit, onAddSub }: Props) {
-  const [items, setItems] = useState(todos);
+  const [items, setItems] = useState<Todo[]>([]);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
   const { refresh } = useTodoContext();
   const { request } = useApi();
 
-  // Sync when external todos change (only if ID order differs)
-  if (todos.length > 0 && JSON.stringify(todos.map(t => t.id)) !== JSON.stringify(items.map(t => t.id))) {
-    setItems(todos);
-  }
+  // Sync items from props when data changes — using useEffect, not render-phase
+  useEffect(() => {
+    if (todos.length === 0) {
+      setItems([]);
+    } else if (digest(todos) !== digest(items)) {
+      setItems(todos);
+    }
+  }, [todos]);
 
   const handleDragStart = (index: number) => {
     dragItem.current = index;

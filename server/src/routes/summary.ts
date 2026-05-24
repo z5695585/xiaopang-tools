@@ -5,6 +5,15 @@ import { getDb } from '../db';
 const router = Router();
 
 function getPeriodDates(period: string, from?: string, to?: string): { start: string; end: string; label: string } {
+  // 如果前端传了日期范围，直接使用
+  if (from && to) {
+    return {
+      start: new Date(from).toISOString(),
+      end: new Date(to).toISOString(),
+      label: `${from.slice(0, 10)} ~ ${to.slice(0, 10)}`,
+    };
+  }
+
   const now = new Date();
   if (period === 'week') {
     const day = now.getDay();
@@ -32,9 +41,9 @@ function getPeriodDates(period: string, from?: string, to?: string): { start: st
     };
   }
   return {
-    start: from || '',
-    end: to || '',
-    label: `${from || ''} ~ ${to || ''}`,
+    start: '',
+    end: '',
+    label: '',
   };
 }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
-import type { Todo, Tag } from '@shared/types';
+import type { Todo } from '@shared/types';
 import { useTodoContext } from '../context';
 import { useApi } from '@/hooks/useApi';
 import { TodoForm } from './TodoForm';
@@ -12,9 +12,7 @@ type FilterTab = 'all' | 'active' | 'completed';
 export function TodoListView() {
   const { refreshKey, refresh } = useTodoContext();
   const { data: todos, request } = useApi<Todo[]>();
-  const { data: tags } = useApi<Tag[]>();
   const [search, setSearch] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
   const [tab, setTab] = useState<FilterTab>('all');
   const [showForm, setShowForm] = useState(false);
   const [editTodo, setEditTodo] = useState<Todo | null>(null);
@@ -23,12 +21,10 @@ export function TodoListView() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    if (tagFilter) params.set('tag_id', tagFilter);
     params.set('status', tab);
     request(`/api/todo-summary/todos?${params}`);
-  }, [refreshKey, tagFilter, tab]);
+  }, [refreshKey, tab]);
 
-  const allTags = tags || [];
   const filtered = (todos || []).filter(t =>
     search ? t.title.toLowerCase().includes(search.toLowerCase()) : true
   );
@@ -69,16 +65,6 @@ export function TodoListView() {
             className="flex-1 bg-transparent outline-none text-sm"
           />
         </div>
-
-        {/* 标签筛选 */}
-        <select
-          value={tagFilter}
-          onChange={e => setTagFilter(e.target.value)}
-          className="px-3 py-2 border border-warm-border rounded-lg text-sm bg-white"
-        >
-          <option value="">所有标签</option>
-          {allTags.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-        </select>
 
         <button
           onClick={() => setShowTagManage(true)}

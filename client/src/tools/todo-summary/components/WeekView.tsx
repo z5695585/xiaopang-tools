@@ -18,7 +18,9 @@ export function WeekView() {
   const weekLabel = `${format(weekStart, 'yyyy年M月d日')} - ${format(addDays(weekStart, 6), 'M月d日')}`;
 
   useEffect(() => {
-    request(`/api/todo-summary/summary/data?period=week`);
+    const from = weekStart.toISOString();
+    const to = addDays(weekStart, 6).toISOString();
+    request(`/api/todo-summary/summary/data?period=week&from=${from}&to=${to}`);
   }, [refreshKey, currentDate]);
 
   const prevWeek = () => setCurrentDate(d => addDays(d, -7));
@@ -70,7 +72,11 @@ export function WeekView() {
                   {summary?.groups?.flatMap(g =>
                     g.completed.map(c => ({ ...c, tag: g.tag }))
                   ).filter((t: any) => t.completedAt?.startsWith(dateKey)).map((t: any, j: number) => (
-                    <div key={j} className="text-xs p-2 rounded bg-warm-card border border-warm-border line-through text-warm-muted">
+                    <div
+                      key={j}
+                      className="text-xs p-2 rounded bg-warm-card border border-warm-border line-through text-warm-muted cursor-default"
+                      title={`${t.title}\n标签: ${t.tag.name}\n${t.subCount ? `含 ${t.subCount} 子项完成\n` : ''}完成时间: ${t.completedAt?.slice(0, 16).replace('T', ' ') || '未知'}`}
+                    >
                       {t.title}
                     </div>
                   ))}

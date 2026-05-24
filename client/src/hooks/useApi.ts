@@ -23,7 +23,7 @@ export function useApi<T = unknown>() {
       });
       const json: ApiResponse<T> = await res.json();
       if (!json.success) {
-        setState({ data: null, loading: false, error: json.error || 'Unknown error' });
+        setState(prev => ({ ...prev, loading: false, error: json.error || 'Unknown error' }));
         return null;
       }
       setState({ data: json.data ?? null, loading: false, error: null });

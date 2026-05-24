@@ -17,22 +17,26 @@ export function TagManage({ onClose }: Props) {
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(PRESET_COLORS[0]);
 
-  useEffect(() => { request('/api/todo-summary/tags'); }, []);
+  const loadTags = () => request('/api/todo-summary/tags');
+
+  useEffect(() => { loadTags(); }, []);
 
   const handleAdd = async () => {
     if (!newName.trim()) return;
-    await request('/api/todo-summary/tags', {
+    // 用原生 fetch 做 POST，避免 response（单个 Tag 对象）污染 useApi 中 Tag[] 类型的 state
+    await fetch('/api/todo-summary/tags', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: newName.trim(), color: newColor }),
     });
     setNewName('');
-    request('/api/todo-summary/tags');
+    loadTags();
   };
 
   const handleDelete = async (id: number) => {
     if (!confirm('确定删除此标签？已有待办不受影响。')) return;
-    await request(`/api/todo-summary/tags/${id}`, { method: 'DELETE' });
-    request('/api/todo-summary/tags');
+    await fetch(`/api/todo-summary/tags/${id}`, { method: 'DELETE' });
+    loadTags();
   };
 
   return (
@@ -77,7 +81,7 @@ export function TagManage({ onClose }: Props) {
 
         {/* 现有标签列表 */}
         <div className="space-y-2 max-h-60 overflow-y-auto">
-          {(tags || []).length === 0 && (
+          {(!tags || tags.length === 0) && (
             <p className="text-xs text-warm-muted text-center py-4">暂无标签</p>
           )}
           {(tags || []).map(tag => (

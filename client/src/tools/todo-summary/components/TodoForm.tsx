@@ -6,10 +6,11 @@ import { useApi } from '@/hooks/useApi';
 interface Props {
   todo?: Todo | null;
   parentId?: number | null;
+  parentTodo?: Todo | null;
   onClose: () => void;
 }
 
-export function TodoForm({ todo, parentId, onClose }: Props) {
+export function TodoForm({ todo, parentId, parentTodo, onClose }: Props) {
   const { refresh } = useTodoContext();
   const { data: tags, request: loadTags } = useApi<Tag[]>();
   const { request } = useApi<Todo>();
@@ -17,16 +18,31 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
   const [title, setTitle] = useState(todo?.title || '');
   const [description, setDescription] = useState(todo?.description || '');
   const [priority, setPriority] = useState<string>(todo?.priority || '中');
-  const [dueDate, setDueDate] = useState(todo?.due_date?.slice(0, 10) || '');
-  const [selectedTags, setSelectedTags] = useState<number[]>(todo?.tags?.map(t => t.id) || []);
+  const [dueDate, setDueDate] = useState(todo?.due_date?.slice(0, 10) || parentTodo?.due_date?.slice(0, 10) || '');
+  const [selectedTags, setSelectedTags] = useState<number[]>(
+    todo?.tags?.map(t => t.id) || parentTodo?.tags?.map(t => t.id) || []
+  );
   const [isRisk, setIsRisk] = useState(!!todo?.is_risk);
   const [isFocus, setIsFocus] = useState(!!todo?.is_focus);
+  const [error, setError] = useState('');
 
   useEffect(() => { loadTags('/api/todo-summary/tags'); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    setError('');
+    if (!title.trim()) {
+      setError('请填写标题');
+      return;
+    }
+    if (!dueDate) {
+      setError('请选择截止日期');
+      return;
+    }
+    if (selectedTags.length === 0) {
+      setError('请至少选择一个标签');
+      return;
+    }
 
     const body: any = {
       title: title.trim(),
@@ -57,6 +73,18 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
       <form onSubmit={handleSubmit} className="bg-warm-card rounded-warm-card shadow-warm-hover w-full max-w-lg p-6 space-y-4 max-h-[80vh] overflow-y-auto">
         <h3 className="font-semibold text-lg">{todo ? '编辑待办' : parentId ? '添加子待办' : '新建待办'}</h3>
 
+        {!todo && parentTodo && (
+          <div className="px-3 py-2 rounded-md bg-warm-secondary text-xs text-warm-muted">
+            已继承父任务的截止日期和标签，可按需调整。
+          </div>
+        )}
+
+        {error && (
+          <div className="px-3 py-2 rounded-md bg-red-50 border border-red-200 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
         <div>
           <label className="text-sm font-medium text-warm-text">标题</label>
           <input value={title} onChange={e => setTitle(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1" placeholder="待办标题" required />
@@ -78,7 +106,7 @@ export function TodoForm({ todo, parentId, onClose }: Props) {
           </div>
           <div className="flex-1">
             <label className="text-sm font-medium text-warm-text">截止日期</label>
-            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1" />
+            <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full px-3 py-2 border border-warm-border rounded-warm-btn focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary outline-none text-sm mt-1" required />
           </div>
         </div>
 

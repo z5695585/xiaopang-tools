@@ -1,21 +1,22 @@
-import Database from 'better-sqlite3';
 import * as m001 from './migrations/001_initial_schema';
 import * as m002 from './migrations/002_todo_template_fields';
 import * as m003 from './migrations/003_planned_date';
+import * as m004 from './migrations/004_app_settings';
 
 interface Migration {
   version: number;
   description: string;
-  up: (db: Database.Database) => void;
+  up: (db: any) => void;
 }
 
 const migrations: Migration[] = [
   { version: m001.version, description: m001.description, up: m001.up },
   { version: m002.version, description: m002.description, up: m002.up },
   { version: m003.version, description: m003.description, up: m003.up },
+  { version: m004.version, description: m004.description, up: m004.up },
 ].sort((a, b) => a.version - b.version);
 
-export function runMigrations(db: Database.Database): void {
+export function runMigrations(db: any): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS migrations (
       version     INTEGER PRIMARY KEY,

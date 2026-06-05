@@ -12,7 +12,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-// === 二期：待办 & 总结工具包 ===
+// === 二期：事项看板工具包 ===
 
 export interface Todo {
   id: number;
@@ -38,15 +38,6 @@ export interface Tag {
   name: string;
   color: string;
   todo_count?: number;
-}
-
-export interface Template {
-  id: number;
-  name: string;
-  content: string;
-  is_default: number;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface SummaryGroup {

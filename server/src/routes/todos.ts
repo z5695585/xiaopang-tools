@@ -4,19 +4,7 @@ import { getDb } from '../db';
 
 const router = Router();
 
-// GET /api/todos — query todos
-router.get('/', (req: Request, res: Response<ApiResponse<Todo[]>>) => {
-  const db = getDb();
-  const { status = 'all', tag_id } = req.query;
-
-  let where = 'WHERE t.deleted_at IS NULL AND t.parent_id IS NULL';
-  const params: any[] = [];
-
-  if (status === 'active') where += ' AND t.completed = 0';
-  else if (status === 'completed') where += ' AND t.completed = 1';
-
-  const todos = db.prepare(`SELECT t.* FROM todos t ${where} ORDER BY t.sort_order, t.created_at DESC`).all(...params) as Todo[];
-
+function attachTodoRelations(db: any, todos: Todo[]): Todo[] {
   for (const todo of todos) {
     todo.tags = db.prepare(`
       SELECT tg.* FROM tags tg JOIN todo_tags tt ON tg.id = tt.tag_id WHERE tt.todo_id = ?
@@ -24,15 +12,87 @@ router.get('/', (req: Request, res: Response<ApiResponse<Todo[]>>) => {
     todo.children = db.prepare(
       'SELECT * FROM todos WHERE parent_id = ? AND deleted_at IS NULL ORDER BY sort_order'
     ).all(todo.id) as any;
+    for (const child of todo.children || []) {
+      child.tags = db.prepare(`
+        SELECT tg.* FROM tags tg JOIN todo_tags tt ON tg.id = tt.tag_id WHERE tt.todo_id = ?
+      `).all(child.id) as any;
+    }
   }
+  return todos;
+}
+
+// GET /api/todos/archive/months — completed todo archive month counts
+router.get('/archive/months', (req: Request, res: Response<ApiResponse<{ month: string; count: number }[]>>) => {
+  const db = getDb();
+  const { tag_id, search } = req.query;
+  const where = ['t.deleted_at IS NULL', 't.parent_id IS NULL', 't.completed = 1', 't.completed_at IS NOT NULL'];
+  const params: any[] = [];
 
   if (tag_id) {
-    const filtered = todos.filter(t => t.tags?.some(tg => tg.id === Number(tag_id)));
-    res.json({ success: true, data: filtered });
-    return;
+    where.push('EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id AND tt.tag_id = ?)');
+    params.push(Number(tag_id));
+  }
+  if (search) {
+    where.push('t.title LIKE ?');
+    params.push(`%${String(search)}%`);
   }
 
-  res.json({ success: true, data: todos });
+  const rows = db.prepare(`
+    SELECT substr(t.completed_at, 1, 7) AS month, COUNT(*) AS count
+    FROM todos t
+    WHERE ${where.join(' AND ')}
+    GROUP BY substr(t.completed_at, 1, 7)
+    ORDER BY month DESC
+  `).all(...params) as { month: string; count: number }[];
+
+  res.json({ success: true, data: rows });
+});
+
+// GET /api/todos — query todos
+router.get('/', (req: Request, res: Response<ApiResponse<Todo[]>>) => {
+  const db = getDb();
+  const { status = 'all', tag_id, from, to, search, page = '1', page_size } = req.query;
+
+  const where = ['t.deleted_at IS NULL', 't.parent_id IS NULL'];
+  const params: any[] = [];
+
+  if (status === 'active') where.push('t.completed = 0');
+  else if (status === 'completed') where.push('t.completed = 1');
+
+  if (tag_id) {
+    where.push('EXISTS (SELECT 1 FROM todo_tags tt WHERE tt.todo_id = t.id AND tt.tag_id = ?)');
+    params.push(Number(tag_id));
+  }
+  if (from && to) {
+    const dateColumn = status === 'completed' ? 't.completed_at' : 't.due_date';
+    where.push(`${dateColumn} >= ? AND ${dateColumn} <= ?`);
+    params.push(`${from}`, status === 'completed' ? `${to} 23:59:59` : `${to}`);
+  }
+  if (search) {
+    where.push('t.title LIKE ?');
+    params.push(`%${String(search)}%`);
+  }
+
+  const orderBy = status === 'completed'
+    ? 'ORDER BY t.completed_at DESC, t.id DESC'
+    : 'ORDER BY t.due_date IS NULL, t.due_date ASC, t.sort_order ASC, t.created_at DESC';
+
+  let limitSql = '';
+  if (page_size) {
+    const size = Math.min(Math.max(Number(page_size) || 50, 1), 200);
+    const pageNumber = Math.max(Number(page) || 1, 1);
+    limitSql = ' LIMIT ? OFFSET ?';
+    params.push(size, (pageNumber - 1) * size);
+  }
+
+  const todos = db.prepare(`
+    SELECT t.* FROM todos t
+    WHERE ${where.join(' AND ')}
+    ${orderBy}
+    ${limitSql}
+  `).all(...params) as Todo[];
+
+  res.json({ success: true, data: attachTodoRelations(db, todos) });
 });
 
 // POST /api/todos — create todo
@@ -43,19 +103,35 @@ router.post('/', (req: Request, res: Response<ApiResponse<Todo>>) => {
     return;
   }
   const db = getDb();
+  const parentId = parent_id || null;
+  const parentTodo = parentId
+    ? db.prepare('SELECT * FROM todos WHERE id = ? AND deleted_at IS NULL').get(parentId) as Todo | undefined
+    : undefined;
+  const inheritedTagIds = parentId
+    ? db.prepare('SELECT tag_id FROM todo_tags WHERE todo_id = ?').all(parentId).map((row: any) => row.tag_id)
+    : [];
+  const finalDueDate = due_date || parentTodo?.due_date || null;
+  const finalTagIds = tag_ids?.length ? tag_ids : inheritedTagIds;
+
+  if (!finalDueDate) {
+    res.status(400).json({ success: false, error: '截止日期不能为空' });
+    return;
+  }
+  if (!finalTagIds.length) {
+    res.status(400).json({ success: false, error: '至少选择一个标签' });
+    return;
+  }
   const maxOrder = db.prepare('SELECT COALESCE(MAX(sort_order), -1) + 1 as next FROM todos WHERE parent_id IS ?')
-    .get(parent_id || null) as any;
+    .get(parentId) as any;
 
   const result = db.prepare(`
     INSERT INTO todos (parent_id, title, description, priority, due_date, planned_date, sort_order)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(parent_id || null, title.trim(), description || '', priority || '中', due_date || null, planned_date || null, maxOrder.next);
+  `).run(parentId, title.trim(), description || '', priority || '中', finalDueDate, planned_date || finalDueDate, maxOrder.next);
 
-  if (tag_ids?.length) {
-    const insert = db.prepare('INSERT INTO todo_tags (todo_id, tag_id) VALUES (?, ?)');
-    for (const tagId of tag_ids) {
-      insert.run(result.lastInsertRowid, tagId);
-    }
+  const insert = db.prepare('INSERT INTO todo_tags (todo_id, tag_id) VALUES (?, ?)');
+  for (const tagId of finalTagIds) {
+    insert.run(result.lastInsertRowid, tagId);
   }
 
   const todo = db.prepare('SELECT * FROM todos WHERE id = ?').get(result.lastInsertRowid) as Todo;

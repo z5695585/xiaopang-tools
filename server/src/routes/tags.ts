@@ -8,9 +8,10 @@ const router = Router();
 router.get('/', (_req: Request, res: Response<ApiResponse<Tag[]>>) => {
   const db = getDb();
   const rows = db.prepare(`
-    SELECT t.*, COUNT(tt.todo_id) as todo_count
+    SELECT t.*, COUNT(td.id) as todo_count
     FROM tags t
     LEFT JOIN todo_tags tt ON t.id = tt.tag_id
+    LEFT JOIN todos td ON td.id = tt.todo_id AND td.deleted_at IS NULL
     GROUP BY t.id
     ORDER BY t.id
   `).all() as Tag[];

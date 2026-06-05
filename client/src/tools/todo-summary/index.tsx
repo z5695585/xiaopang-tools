@@ -4,11 +4,10 @@ import { TodoProvider } from './context';
 import { TodoListView } from './components/TodoListView';
 import { WeekView } from './components/WeekView';
 import { MonthView } from './components/MonthView';
-import { ReportTemplates } from './components/ReportTemplates';
 
 export const todoSummaryMeta: ToolPackageMeta = {
   id: 'todo-summary',
-  name: '待办 & 总结',
+  name: '事项看板',
   icon: '📋',
 };
 
@@ -34,12 +33,6 @@ function MainPage() {
         >
           月视图
         </Tabs.Trigger>
-        <Tabs.Trigger
-          value="templates"
-          className="px-4 py-3 text-sm text-warm-muted data-[state=active]:text-warm-primary data-[state=active]:border-b-2 data-[state=active]:border-warm-primary data-[state=active]:-mb-px transition-colors"
-        >
-          报告模板
-        </Tabs.Trigger>
       </Tabs.List>
 
       <Tabs.Content value="todo" className="flex-1 overflow-hidden">
@@ -50,9 +43,6 @@ function MainPage() {
       </Tabs.Content>
       <Tabs.Content value="month" className="flex-1 overflow-hidden">
         <MonthView />
-      </Tabs.Content>
-      <Tabs.Content value="templates" className="flex-1 overflow-hidden">
-        <ReportTemplates />
       </Tabs.Content>
     </Tabs.Root>
   );

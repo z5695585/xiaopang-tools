@@ -1,9 +1,29 @@
 import { Request, Response, NextFunction } from 'express';
+import { getDb } from '../db';
 
 const AUTH_HEADER = 'x-auth-password';
+const PASSWORD_KEY = 'access_password';
 
 export function getAccessPassword(): string {
+  try {
+    const row = getDb().prepare('SELECT value FROM app_settings WHERE key = ?').get(PASSWORD_KEY) as { value: string } | undefined;
+    if (row?.value) return row.value;
+  } catch {
+    // Migrations may not have run yet. Fall back to env/default.
+  }
   return process.env.ACCESS_PASSWORD || 'xiaopang';
+}
+
+export function setAccessPassword(password: string): void {
+  getDb().prepare(`
+    INSERT INTO app_settings (key, value, updated_at)
+    VALUES (?, ?, datetime('now'))
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')
+  `).run(PASSWORD_KEY, password);
+}
+
+export function getResetCode(): string {
+  return process.env.RESET_PASSWORD_CODE || 'xiaopang-reset';
 }
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction): void {

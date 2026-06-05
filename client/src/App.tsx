@@ -84,7 +84,14 @@ function App() {
     );
   }
 
-  return <HomeScreen onSelectTool={setActiveToolId} />;
+  return (
+    <HomeScreen
+      onSelectTool={setActiveToolId}
+      onPasswordChanged={(password) => {
+        sessionStorage.setItem('auth_password', password);
+      }}
+    />
+  );
 }
 
 export default App;

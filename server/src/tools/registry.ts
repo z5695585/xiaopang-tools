@@ -2,8 +2,8 @@ import { Router } from 'express';
 import type { ToolPackageMeta } from '@shared/types';
 import tagsRouter from '../routes/tags';
 import todosRouter from '../routes/todos';
-import templatesRouter from '../routes/templates';
 import summaryRouter from '../routes/summary';
+import backupRouter from '../routes/backup';
 
 export interface ServerToolPackage {
   meta: ToolPackageMeta;
@@ -12,7 +12,7 @@ export interface ServerToolPackage {
 
 const todoSummaryMeta: ToolPackageMeta = {
   id: 'todo-summary',
-  name: '待办 & 总结',
+  name: '事项看板',
   icon: '📋',
 };
 
@@ -20,8 +20,8 @@ const todoSummaryMeta: ToolPackageMeta = {
 const mainRouter = Router();
 mainRouter.use('/tags', tagsRouter);
 mainRouter.use('/todos', todosRouter);
-mainRouter.use('/templates', templatesRouter);
 mainRouter.use('/summary', summaryRouter);
+mainRouter.use('/backup', backupRouter);
 
 export const toolRegistrations: ServerToolPackage[] = [
   { meta: todoSummaryMeta, apiRouter: mainRouter },

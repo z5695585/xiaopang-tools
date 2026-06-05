@@ -1,9 +1,7 @@
-import Database from 'better-sqlite3';
-
 export const version = 2;
 export const description = 'Add todo fields (priority, due_date, is_risk, is_focus, deleted_at) and templates table';
 
-export function up(db: Database.Database): void {
+export function up(db: any): void {
   db.exec(`
     ALTER TABLE todos ADD COLUMN priority TEXT DEFAULT '中';
     ALTER TABLE todos ADD COLUMN due_date TEXT;

@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import type { ClientToolPackage } from '../tools/registry';
 import { toolPackages } from '../tools/registry';
+import { PasswordInput } from './ui/password-input';
 
 interface Props {
   onSelectTool: (toolId: string) => void;
+  onPasswordChanged: (password: string) => void;
 }
 
 const placeholderTools = [
@@ -10,7 +13,8 @@ const placeholderTools = [
   { id: 'placeholder-2', name: '工具 3', icon: '📊', desc: '即将推出' },
 ];
 
-export function HomeScreen({ onSelectTool }: Props) {
+export function HomeScreen({ onSelectTool, onPasswordChanged }: Props) {
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const realTools = toolPackages.map(pkg => ({
     id: pkg.meta.id,
     name: pkg.meta.name,
@@ -26,10 +30,14 @@ export function HomeScreen({ onSelectTool }: Props) {
         {/* 顶部 */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-[22px] font-bold text-warm-text">🧰 小胖工具</h1>
+            <h1 className="text-[22px] font-bold text-warm-text">🧰 小胖工作台</h1>
             <p className="text-[11px] text-warm-muted mt-0.5">{allTools.length} 个工具</p>
           </div>
-          <button className="w-9 h-9 bg-warm-secondary hover:bg-warm-border rounded-full flex items-center justify-center transition-colors text-base">
+          <button
+            onClick={() => setShowPasswordModal(true)}
+            className="w-9 h-9 bg-warm-secondary hover:bg-warm-border rounded-full flex items-center justify-center transition-colors text-base"
+            title="修改密码"
+          >
             ⚙
           </button>
         </div>
@@ -65,13 +73,149 @@ export function HomeScreen({ onSelectTool }: Props) {
           })}
         </div>
       </div>
+      {showPasswordModal && (
+        <PasswordModal
+          onClose={() => setShowPasswordModal(false)}
+          onPasswordChanged={(password) => {
+            onPasswordChanged(password);
+            setShowPasswordModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }
 
 function getToolDesc(id: string): string {
   switch (id) {
-    case 'todo-summary': return '任务管理 + AI 周报';
+    case 'todo-summary': return '待处理、风险重点、周期回顾';
     default: return '';
   }
+}
+
+function PasswordModal({
+  onClose,
+  onPasswordChanged,
+}: {
+  onClose: () => void;
+  onPasswordChanged: (password: string) => void;
+}) {
+  const [mode, setMode] = useState<'change' | 'reset'>('change');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (newPassword.length < 4) {
+      setError('新密码至少 4 位');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('两次输入的新密码不一致');
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(mode === 'change' ? '/api/auth/change' : '/api/auth/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mode === 'change'
+          ? { currentPassword, newPassword }
+          : { resetCode, newPassword }
+        ),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.error || '修改失败');
+        return;
+      }
+      onPasswordChanged(newPassword);
+    } catch {
+      setError('网络错误，请重试');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 px-6">
+      <form onSubmit={handleSubmit} className="bg-warm-card rounded-warm-card shadow-warm-hover w-full max-w-sm p-6 space-y-4">
+        <div>
+          <h3 className="font-semibold text-lg text-warm-text">密码设置</h3>
+          <p className="text-xs text-warm-muted mt-1">
+            {mode === 'change' ? '修改后会自动更新当前登录状态。' : '重置密码需要服务器重置码。'}
+          </p>
+        </div>
+
+        <div className="flex bg-warm-secondary rounded-lg p-0.5">
+          <button
+            type="button"
+            onClick={() => {
+              setMode('change');
+              setError('');
+            }}
+            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              mode === 'change' ? 'bg-warm-primary text-white shadow-sm' : 'text-warm-muted hover:text-warm-text'
+            }`}
+          >
+            修改密码
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode('reset');
+              setError('');
+            }}
+            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              mode === 'reset' ? 'bg-warm-primary text-white shadow-sm' : 'text-warm-muted hover:text-warm-text'
+            }`}
+          >
+            重置密码
+          </button>
+        </div>
+
+        {mode === 'change' ? (
+          <PasswordInput
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            placeholder="当前密码"
+            className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
+          />
+        ) : (
+          <PasswordInput
+            value={resetCode}
+            onChange={setResetCode}
+            placeholder="重置码"
+            className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
+          />
+        )}
+        <PasswordInput
+          value={newPassword}
+          onChange={setNewPassword}
+          placeholder="新密码"
+          className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
+        />
+        <PasswordInput
+          value={confirmPassword}
+          onChange={setConfirmPassword}
+          placeholder="再次输入新密码"
+          className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
+        />
+        {error && <p className="text-xs text-red-500">{error}</p>}
+        <div className="flex justify-end gap-2 pt-2">
+          <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-md bg-warm-secondary hover:bg-warm-border text-warm-text">
+            取消
+          </button>
+          <button type="submit" disabled={saving} className="px-4 py-2 text-sm text-white bg-warm-primary rounded-md hover:bg-warm-primary-hover disabled:opacity-50">
+            {mode === 'change' ? '保存' : '重置'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }

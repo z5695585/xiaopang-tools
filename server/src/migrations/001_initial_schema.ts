@@ -1,9 +1,7 @@
-import Database from 'better-sqlite3';
-
 export const version = 1;
 export const description = 'Initial schema: todos, tags, todo_tags, migrations';
 
-export function up(db: Database.Database): void {
+export function up(db: any): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS todos (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,

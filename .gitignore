@@ -7,3 +7,6 @@ dist/
 .env
 .superpowers/
 .worktrees/
+*.log
+*.tsbuildinfo
+server/.npm-cache/

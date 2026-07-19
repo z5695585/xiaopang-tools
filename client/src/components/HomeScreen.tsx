@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ClientToolPackage } from '../tools/registry';
 import { toolPackages } from '../tools/registry';
 import { PasswordInput } from './ui/password-input';
+import { BackupSettingsSection } from './BackupSettingsSection';
 
 interface Props {
   onSelectTool: (toolId: string) => void;
@@ -36,7 +37,7 @@ export function HomeScreen({ onSelectTool, onPasswordChanged }: Props) {
           <button
             onClick={() => setShowPasswordModal(true)}
             className="w-9 h-9 bg-warm-secondary hover:bg-warm-border rounded-full flex items-center justify-center transition-colors text-base"
-            title="修改密码"
+            title="设置"
           >
             ⚙
           </button>
@@ -74,7 +75,7 @@ export function HomeScreen({ onSelectTool, onPasswordChanged }: Props) {
         </div>
       </div>
       {showPasswordModal && (
-        <PasswordModal
+        <SettingsModal
           onClose={() => setShowPasswordModal(false)}
           onPasswordChanged={(password) => {
             onPasswordChanged(password);
@@ -93,7 +94,7 @@ function getToolDesc(id: string): string {
   }
 }
 
-function PasswordModal({
+function SettingsModal({
   onClose,
   onPasswordChanged,
 }: {
@@ -144,78 +145,89 @@ function PasswordModal({
 
   return (
     <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 px-6">
-      <form onSubmit={handleSubmit} className="bg-warm-card rounded-warm-card shadow-warm-hover w-full max-w-sm p-6 space-y-4">
-        <div>
-          <h3 className="font-semibold text-lg text-warm-text">密码设置</h3>
-          <p className="text-xs text-warm-muted mt-1">
-            {mode === 'change' ? '修改后会自动更新当前登录状态。' : '重置密码需要服务器重置码。'}
-          </p>
-        </div>
+      <div className="bg-warm-card rounded-warm-card shadow-warm-hover w-full max-w-sm p-6 space-y-5 max-h-[85vh] overflow-y-auto">
+        <h3 className="font-semibold text-lg text-warm-text">设置</h3>
 
-        <div className="flex bg-warm-secondary rounded-lg p-0.5">
-          <button
-            type="button"
-            onClick={() => {
-              setMode('change');
-              setError('');
-            }}
-            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              mode === 'change' ? 'bg-warm-primary text-white shadow-sm' : 'text-warm-muted hover:text-warm-text'
-            }`}
-          >
-            修改密码
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setMode('reset');
-              setError('');
-            }}
-            className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              mode === 'reset' ? 'bg-warm-primary text-white shadow-sm' : 'text-warm-muted hover:text-warm-text'
-            }`}
-          >
-            重置密码
-          </button>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <h4 className="text-sm font-medium text-warm-text">密码设置</h4>
+            <p className="text-xs text-warm-muted mt-1">
+              {mode === 'change' ? '修改后会自动更新当前登录状态。' : '重置密码需要服务器重置码。'}
+            </p>
+          </div>
 
-        {mode === 'change' ? (
+          <div className="flex bg-warm-secondary rounded-lg p-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                setMode('change');
+                setError('');
+              }}
+              className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                mode === 'change' ? 'bg-warm-primary text-white shadow-sm' : 'text-warm-muted hover:text-warm-text'
+              }`}
+            >
+              修改密码
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('reset');
+                setError('');
+              }}
+              className={`flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                mode === 'reset' ? 'bg-warm-primary text-white shadow-sm' : 'text-warm-muted hover:text-warm-text'
+              }`}
+            >
+              重置密码
+            </button>
+          </div>
+
+          {mode === 'change' ? (
+            <PasswordInput
+              value={currentPassword}
+              onChange={setCurrentPassword}
+              placeholder="当前密码"
+              className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
+            />
+          ) : (
+            <PasswordInput
+              value={resetCode}
+              onChange={setResetCode}
+              placeholder="重置码"
+              className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
+            />
+          )}
           <PasswordInput
-            value={currentPassword}
-            onChange={setCurrentPassword}
-            placeholder="当前密码"
+            value={newPassword}
+            onChange={setNewPassword}
+            placeholder="新密码"
             className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
           />
-        ) : (
           <PasswordInput
-            value={resetCode}
-            onChange={setResetCode}
-            placeholder="重置码"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            placeholder="再次输入新密码"
             className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
           />
-        )}
-        <PasswordInput
-          value={newPassword}
-          onChange={setNewPassword}
-          placeholder="新密码"
-          className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
-        />
-        <PasswordInput
-          value={confirmPassword}
-          onChange={setConfirmPassword}
-          placeholder="再次输入新密码"
-          className="w-full px-3 py-2 border border-warm-border rounded-warm-btn text-sm bg-white outline-none focus:ring-2 focus:ring-warm-primary/20 focus:border-warm-primary"
-        />
-        {error && <p className="text-xs text-red-500">{error}</p>}
-        <div className="flex justify-end gap-2 pt-2">
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          <div className="flex justify-end pt-1">
+            <button type="submit" disabled={saving} className="px-4 py-2 text-sm text-white bg-warm-primary rounded-md hover:bg-warm-primary-hover disabled:opacity-50">
+              {mode === 'change' ? '保存密码' : '重置密码'}
+            </button>
+          </div>
+        </form>
+
+        <hr className="border-warm-border" />
+
+        <BackupSettingsSection />
+
+        <div className="flex justify-end pt-1">
           <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-md bg-warm-secondary hover:bg-warm-border text-warm-text">
-            取消
-          </button>
-          <button type="submit" disabled={saving} className="px-4 py-2 text-sm text-white bg-warm-primary rounded-md hover:bg-warm-primary-hover disabled:opacity-50">
-            {mode === 'change' ? '保存' : '重置'}
+            关闭
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

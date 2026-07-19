@@ -6,7 +6,6 @@ import { runMigrations } from './migrate';
 import { toolRegistrations } from './tools/registry';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import authRouter from './routes/auth';
-import settingsRouter from './routes/settings';
 import { authMiddleware } from './middleware/auth';
 import { runDailyBackupIfDue } from './services/githubBackup';
 
@@ -28,7 +27,6 @@ app.get('/api/health', (_req, res) => {
 // 鉴权
 app.use('/api/auth', authRouter);
 app.use('/api', authMiddleware);
-app.use('/api/settings', settingsRouter);
 
 // 注册工具包 API 路由
 for (const tool of toolRegistrations) {

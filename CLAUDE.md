@@ -246,13 +246,15 @@ case 'pomodoro': return '番茄工作法计时';
 
 防止 Railway 欠费/误删导致数据永久丢失：应用进程存活期间，每小时检查一次今天是否已经成功备份过，未备份则把全量数据（tags/todos/todo_tags）写入你自己配置的 GitHub 仓库。
 
+这个功能只属于「事项看板」工具（只备份该工具的数据），因此设置入口和后端路由都挂在 `todo-summary` 工具包内，不放在全局设置里。
+
 | 组件 | 位置 | 职责 |
 |------|------|------|
-| 备份数据构建 | `server/src/routes/backup.ts` 的 `buildBackupPayload()` | 手动导出（`GET .../backup/export`）和自动备份共用同一份数据构建逻辑 |
+| 备份数据构建 | `server/src/services/backupPayload.ts` 的 `buildBackupPayload()` | 手动导出（`GET .../backup/export`）和自动备份共用同一份数据构建逻辑 |
 | GitHub 写入服务 | `server/src/services/githubBackup.ts` | 直接用 `fetch` 调 GitHub Contents API（GET 取 sha → PUT 创建/覆盖文件），不引入 octokit 依赖 |
 | 定时检查 | `server/src/index.ts` | 启动后延迟 10s 检查一次，之后每小时检查一次（`setInterval`），不引入 node-cron 依赖 |
-| 开关 & 状态 API | `server/src/routes/settings.ts` | `GET/PUT /api/settings/backup` 读写开关，`POST /api/settings/backup/run` 手动触发 |
-| 设置 UI | `client/src/components/BackupSettingsSection.tsx` | 挂在主屏 ⚙ 设置弹窗里，开关 + 上次备份时间/状态 + 立即备份按钮 |
+| 开关 & 状态 API | `server/src/routes/backup.ts` | `GET/PUT /api/todo-summary/backup/settings` 读写开关，`POST /api/todo-summary/backup/settings/run` 手动触发 |
+| 设置 UI | `client/src/tools/todo-summary/components/BackupSettings.tsx` | 事项看板工具栏「GitHub 备份」按钮打开的弹窗，开关 + 上次备份时间/状态 + 立即备份按钮 |
 
 - 开关状态（`backup_enabled`）和上次运行结果存在 `app_settings` 表里，`GITHUB_TOKEN`/`GITHUB_BACKUP_REPO` 等敏感信息只存环境变量，永远不通过 API 返回给前端
 - 备份文件路径：`backups/xiaopang-YYYY-MM-DD.json`（按天命名，同一天重复执行会覆盖当天文件，不会越堆越多）
@@ -354,7 +356,7 @@ cd ../server && npm run dev  # 启动后端
   - `GITHUB_TOKEN`：细粒度 Personal Access Token，只授权备份仓库的 Contents 读写权限
   - `GITHUB_BACKUP_REPO`：备份仓库全名，格式 `owner/repo`（建议用独立私有仓库，不要用代码仓库本身）
   - `GITHUB_BACKUP_BRANCH`：可选，默认 `main`
-  - 配置好环境变量后，还需要在设置弹窗里手动打开"每日备份到 GitHub"开关才会生效
+  - 配置好环境变量后，还需要在「事项看板」工具栏的「GitHub 备份」弹窗里手动打开"每日自动备份"开关才会生效
 
 ---
 

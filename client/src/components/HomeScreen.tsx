@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { ClientToolPackage } from '../tools/registry';
 import { toolPackages } from '../tools/registry';
 import { PasswordInput } from './ui/password-input';
-import { BackupSettingsSection } from './BackupSettingsSection';
 
 interface Props {
   onSelectTool: (toolId: string) => void;
@@ -217,10 +216,6 @@ function SettingsModal({
             </button>
           </div>
         </form>
-
-        <hr className="border-warm-border" />
-
-        <BackupSettingsSection />
 
         <div className="flex justify-end pt-1">
           <button type="button" onClick={onClose} className="px-4 py-2 text-sm rounded-md bg-warm-secondary hover:bg-warm-border text-warm-text">

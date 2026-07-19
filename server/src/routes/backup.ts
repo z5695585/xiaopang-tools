@@ -4,7 +4,7 @@ import { getDb } from '../db';
 
 const router = Router();
 
-interface BackupPayload {
+export interface BackupPayload {
   version: 1;
   exported_at: string;
   data: {
@@ -18,8 +18,9 @@ function rows(table: string): any[] {
   return getDb().prepare(`SELECT * FROM ${table}`).all() as any[];
 }
 
-router.get('/export', (_req: Request, res: Response) => {
-  const payload: BackupPayload = {
+// 供手动导出接口和 GitHub 每日备份服务共用
+export function buildBackupPayload(): BackupPayload {
+  return {
     version: 1,
     exported_at: new Date().toISOString(),
     data: {
@@ -28,6 +29,10 @@ router.get('/export', (_req: Request, res: Response) => {
       todo_tags: rows('todo_tags'),
     },
   };
+}
+
+router.get('/export', (_req: Request, res: Response) => {
+  const payload = buildBackupPayload();
 
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');

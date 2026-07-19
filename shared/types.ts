@@ -89,3 +89,14 @@ export interface UpdateTodoInput {
 export interface ReorderInput {
   items: { id: number; sort_order: number }[];
 }
+
+// === GitHub 每日备份 ===
+
+export interface BackupSettings {
+  enabled: boolean;
+  configured: boolean;
+  repo: string | null;
+  last_run_at: string | null;
+  last_status: 'success' | 'error' | null;
+  last_error: string | null;
+}

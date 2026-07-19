@@ -70,6 +70,8 @@ export interface CreateTodoInput {
   due_date?: string | null;
   planned_date?: string | null;
   tag_ids?: number[];
+  is_risk?: number;
+  is_focus?: number;
 }
 
 export interface UpdateTodoInput {

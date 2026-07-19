@@ -97,7 +97,7 @@ router.get('/', (req: Request, res: Response<ApiResponse<Todo[]>>) => {
 
 // POST /api/todos — create todo
 router.post('/', (req: Request, res: Response<ApiResponse<Todo>>) => {
-  const { parent_id, title, description, priority, due_date, planned_date, tag_ids } = req.body as CreateTodoInput;
+  const { parent_id, title, description, priority, due_date, planned_date, tag_ids, is_risk, is_focus } = req.body as CreateTodoInput;
   if (!title?.trim()) {
     res.status(400).json({ success: false, error: '标题不能为空' });
     return;
@@ -125,9 +125,9 @@ router.post('/', (req: Request, res: Response<ApiResponse<Todo>>) => {
     .get(parentId) as any;
 
   const result = db.prepare(`
-    INSERT INTO todos (parent_id, title, description, priority, due_date, planned_date, sort_order)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(parentId, title.trim(), description || '', priority || '中', finalDueDate, planned_date || finalDueDate, maxOrder.next);
+    INSERT INTO todos (parent_id, title, description, priority, due_date, planned_date, sort_order, is_risk, is_focus)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(parentId, title.trim(), description || '', priority || '中', finalDueDate, planned_date || finalDueDate, maxOrder.next, is_risk || 0, is_focus || 0);
 
   const insert = db.prepare('INSERT INTO todo_tags (todo_id, tag_id) VALUES (?, ?)');
   for (const tagId of finalTagIds) {

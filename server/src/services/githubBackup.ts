@@ -1,6 +1,6 @@
 import type { BackupSettings } from '@shared/types';
 import { getDb } from '../db';
-import { buildBackupPayload, type BackupPayload } from '../routes/backup';
+import { buildBackupPayload, type BackupPayload } from './backupPayload';
 
 function getSetting(key: string): string | null {
   const row = getDb().prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as { value: string } | undefined;

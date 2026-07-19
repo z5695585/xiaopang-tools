@@ -1,35 +1,10 @@
 import { Router, Request, Response } from 'express';
-import type { ApiResponse } from '@shared/types';
+import type { ApiResponse, BackupSettings } from '@shared/types';
 import { getDb } from '../db';
+import { getBackupStatus, setBackupEnabled, runBackupNow } from '../services/githubBackup';
+import { buildBackupPayload, type BackupPayload } from '../services/backupPayload';
 
 const router = Router();
-
-export interface BackupPayload {
-  version: 1;
-  exported_at: string;
-  data: {
-    tags: any[];
-    todos: any[];
-    todo_tags: any[];
-  };
-}
-
-function rows(table: string): any[] {
-  return getDb().prepare(`SELECT * FROM ${table}`).all() as any[];
-}
-
-// 供手动导出接口和 GitHub 每日备份服务共用
-export function buildBackupPayload(): BackupPayload {
-  return {
-    version: 1,
-    exported_at: new Date().toISOString(),
-    data: {
-      tags: rows('tags'),
-      todos: rows('todos'),
-      todo_tags: rows('todo_tags'),
-    },
-  };
-}
 
 router.get('/export', (_req: Request, res: Response) => {
   const payload = buildBackupPayload();
@@ -106,6 +81,22 @@ router.post('/import', (req: Request, res: Response<ApiResponse<{ imported: { ta
       },
     },
   });
+});
+
+// GitHub 每日备份设置：仅事项看板使用，故挂在本工具包的 backup 路由下，而非全局 /api/settings
+router.get('/settings', (_req: Request, res: Response<ApiResponse<BackupSettings>>) => {
+  res.json({ success: true, data: getBackupStatus() });
+});
+
+router.put('/settings', (req: Request, res: Response<ApiResponse<BackupSettings>>) => {
+  const { enabled } = req.body as { enabled: boolean };
+  setBackupEnabled(!!enabled);
+  res.json({ success: true, data: getBackupStatus() });
+});
+
+router.post('/settings/run', async (_req: Request, res: Response<ApiResponse<BackupSettings>>) => {
+  await runBackupNow();
+  res.json({ success: true, data: getBackupStatus() });
 });
 
 export default router;

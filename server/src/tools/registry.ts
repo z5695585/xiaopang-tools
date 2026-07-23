@@ -4,7 +4,6 @@ import tagsRouter from '../routes/tags';
 import todosRouter from '../routes/todos';
 import summaryRouter from '../routes/summary';
 import backupRouter from '../routes/backup';
-import aiCaptureRouter from '../routes/ai-capture';
 
 export interface ServerToolPackage {
   meta: ToolPackageMeta;
@@ -23,7 +22,6 @@ mainRouter.use('/tags', tagsRouter);
 mainRouter.use('/todos', todosRouter);
 mainRouter.use('/summary', summaryRouter);
 mainRouter.use('/backup', backupRouter);
-mainRouter.use('/ai-capture', aiCaptureRouter);
 
 export const toolRegistrations: ServerToolPackage[] = [
   { meta: todoSummaryMeta, apiRouter: mainRouter },

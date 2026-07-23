@@ -263,23 +263,6 @@ case 'pomodoro': return '番茄工作法计时';
 
 ---
 
-## AI 辅助添加待办（邮件识别）
-
-除手动添加待办外，支持粘贴一段邮件正文，由 AI（阿里云百炼 `qwen-flash`）提炼出最主要的一件待办事项，预填新建待办表单，用户仍需手动检查并补充截止日期、标签等字段（v1 只提取单条主要事项，不做多任务拆分）。
-
-| 组件 | 位置 | 职责 |
-|------|------|------|
-| AI 调用服务 | `server/src/services/aiCapture.ts` 的 `extractTodoFromEmail()` | 组装百炼请求（含当日日期，供模型换算"本周五"等相对日期），解析/校验返回 JSON 为 `TodoDraft` |
-| 路由 | `server/src/routes/ai-capture.ts` | `POST /api/todo-summary/ai-capture/email`，校验 `text` 非空，返回 `ApiResponse<TodoDraft>` |
-| 识别弹窗 | `client/src/tools/todo-summary/components/EmailCaptureModal.tsx` | 事项看板工具栏「邮件识别」按钮打开，粘贴文本 → 调用接口 → 识别成功后打开预填的新建待办表单 |
-| 表单预填 | `client/src/tools/todo-summary/components/TodoForm.tsx` | 新增 `draft?: TodoDraft` prop，仅在新建（非编辑）模式下用 AI 草稿预填字段，并显示提示横幅 |
-
-- 直接调用百炼 OpenAI 兼容接口（`https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions`），不引入 SDK 依赖，与 `githubBackup.ts` 的 `fetch` 风格一致
-- 依赖环境变量 `DASHSCOPE_API_KEY`（阿里云百炼 API Key），本地需在启动 `npm run dev` 的同一终端里手动 `$env:DASHSCOPE_API_KEY = "..."` 设置（`tsx` 不会自动读取 `.env`），Railway 部署需在环境变量里配置
-- AI 只返回**草稿**，不会静默创建待办：`due_date`/标签无法由 AI 可靠推断，必须由用户在表单里确认
-
----
-
 ## 前端规范
 
 ### useApi Hook
@@ -374,7 +357,6 @@ cd ../server && npm run dev  # 启动后端
   - `GITHUB_BACKUP_REPO`：备份仓库全名，格式 `owner/repo`（建议用独立私有仓库，不要用代码仓库本身）
   - `GITHUB_BACKUP_BRANCH`：可选，默认 `main`
   - 配置好环境变量后，还需要在「事项看板」工具栏的「GitHub 备份」弹窗里手动打开"每日自动备份"开关才会生效
-- （可选）开启「邮件识别添加待办」需要配置环境变量 `DASHSCOPE_API_KEY`（阿里云百炼 API Key）
 
 ---
 

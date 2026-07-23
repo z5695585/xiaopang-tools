@@ -1,13 +1,12 @@
 import { useRef, useState, useEffect } from 'react';
-import { Search, Plus, ChevronDown, ChevronRight, AlertTriangle, Star, Download, Upload, Cloud, Mail } from 'lucide-react';
-import type { Todo, Tag, TodoDraft } from '@shared/types';
+import { Search, Plus, ChevronDown, ChevronRight, AlertTriangle, Star, Download, Upload, Cloud } from 'lucide-react';
+import type { Todo, Tag } from '@shared/types';
 import { useTodoContext } from '../context';
 import { useApi } from '@/hooks/useApi';
 import { TodoForm } from './TodoForm';
 import { TodoRow } from './TodoRow';
 import { TagManage } from './TagManage';
 import { BackupSettingsModal } from './BackupSettings';
-import { EmailCaptureModal } from './EmailCaptureModal';
 
 type FilterTab = 'active' | 'completed';
 
@@ -269,8 +268,6 @@ export function TodoListView() {
   const [addSubFor, setAddSubFor] = useState<Todo | null>(null);
   const [showTagManage, setShowTagManage] = useState(false);
   const [showBackupSettings, setShowBackupSettings] = useState(false);
-  const [showEmailCapture, setShowEmailCapture] = useState(false);
-  const [todoDraft, setTodoDraft] = useState<TodoDraft | null>(null);
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -429,14 +426,6 @@ export function TodoListView() {
           </button>
 
           <button
-            onClick={() => setShowEmailCapture(true)}
-            className="px-3 py-2 border border-warm-border rounded-lg text-xs text-warm-text-secondary hover:bg-warm-secondary transition-colors shrink-0 flex items-center gap-1.5"
-          >
-            <Mail className="w-3.5 h-3.5" />
-            邮件识别
-          </button>
-
-          <button
             onClick={() => setShowForm(true)}
             className="px-4 py-2 bg-warm-primary hover:bg-warm-primary-hover text-white rounded-lg text-sm flex items-center gap-2 transition-colors shrink-0"
           >
@@ -529,28 +518,15 @@ export function TodoListView() {
 
       {showBackupSettings && <BackupSettingsModal onClose={() => setShowBackupSettings(false)} />}
 
-      {showEmailCapture && (
-        <EmailCaptureModal
-          onClose={() => setShowEmailCapture(false)}
-          onDraftReady={draft => {
-            setTodoDraft(draft);
-            setShowEmailCapture(false);
-            setShowForm(true);
-          }}
-        />
-      )}
-
       {(showForm || editTodo || addSubFor) && (
         <TodoForm
           todo={editTodo || undefined}
           parentId={addSubFor ? addSubFor.id : undefined}
           parentTodo={addSubFor || undefined}
-          draft={todoDraft}
           onClose={() => {
             setShowForm(false);
             setEditTodo(null);
             setAddSubFor(null);
-            setTodoDraft(null);
             refresh();
           }}
         />

@@ -100,14 +100,3 @@ export interface BackupSettings {
   last_status: 'success' | 'error' | null;
   last_error: string | null;
 }
-
-// === AI 智能添加待办 ===
-
-export interface TodoDraft {
-  title: string;
-  description: string;
-  priority: '高' | '中' | '低';
-  due_date: string | null;
-  is_risk: number;
-  is_focus: number;
-}

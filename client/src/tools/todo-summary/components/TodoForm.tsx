@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Todo, Tag } from '@shared/types';
+import type { Todo, Tag, TodoDraft } from '@shared/types';
 import { useTodoContext } from '../context';
 import { useApi } from '@/hooks/useApi';
 
@@ -7,23 +7,24 @@ interface Props {
   todo?: Todo | null;
   parentId?: number | null;
   parentTodo?: Todo | null;
+  draft?: TodoDraft | null;
   onClose: () => void;
 }
 
-export function TodoForm({ todo, parentId, parentTodo, onClose }: Props) {
+export function TodoForm({ todo, parentId, parentTodo, draft, onClose }: Props) {
   const { refresh } = useTodoContext();
   const { data: tags, request: loadTags } = useApi<Tag[]>();
   const { request } = useApi<Todo>();
 
-  const [title, setTitle] = useState(todo?.title || '');
-  const [description, setDescription] = useState(todo?.description || '');
-  const [priority, setPriority] = useState<string>(todo?.priority || '中');
-  const [dueDate, setDueDate] = useState(todo?.due_date?.slice(0, 10) || parentTodo?.due_date?.slice(0, 10) || '');
+  const [title, setTitle] = useState(todo?.title || draft?.title || '');
+  const [description, setDescription] = useState(todo?.description || draft?.description || '');
+  const [priority, setPriority] = useState<string>(todo?.priority || draft?.priority || '中');
+  const [dueDate, setDueDate] = useState(todo?.due_date?.slice(0, 10) || parentTodo?.due_date?.slice(0, 10) || draft?.due_date || '');
   const [selectedTags, setSelectedTags] = useState<number[]>(
     todo?.tags?.map(t => t.id) || parentTodo?.tags?.map(t => t.id) || []
   );
-  const [isRisk, setIsRisk] = useState(!!todo?.is_risk);
-  const [isFocus, setIsFocus] = useState(!!todo?.is_focus);
+  const [isRisk, setIsRisk] = useState(!!(todo?.is_risk ?? draft?.is_risk));
+  const [isFocus, setIsFocus] = useState(!!(todo?.is_focus ?? draft?.is_focus));
   const [error, setError] = useState('');
 
   useEffect(() => { loadTags('/api/todo-summary/tags'); }, []);
@@ -76,6 +77,12 @@ export function TodoForm({ todo, parentId, parentTodo, onClose }: Props) {
         {!todo && parentTodo && (
           <div className="px-3 py-2 rounded-md bg-warm-secondary text-xs text-warm-muted">
             已继承父任务的截止日期和标签，可按需调整。
+          </div>
+        )}
+
+        {!todo && draft && (
+          <div className="px-3 py-2 rounded-md bg-warm-secondary text-xs text-warm-muted">
+            已由 AI 从邮件中提炼填充，请检查并补充截止日期和标签。
           </div>
         )}
 
